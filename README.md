@@ -2,9 +2,11 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
 
-**[Live Demo](https://synergycodes.github.io/ng-diagram-orgchart/)**
+**Live demo:** [ngdiagram.dev/templates/org-chart](https://www.ngdiagram.dev/templates/org-chart/)
 
-Interactive organizational chart built with Angular 21 and [ng-diagram](https://www.npmjs.com/package/ng-diagram). Use this project as a starting point for building your own org-chart or tree-based diagram. Minimal dependencies: only Angular, ng-diagram, and ELK.js, with no opinionated third-party UI libraries.
+![Org chart — collapse a subtree, add and name a new person, drag them to a new manager, zoom in to the full card view, switch to horizontal layout](docs/assets/demo.gif)
+
+Interactive organizational chart built with Angular 21 and [ngDiagram](https://www.ngdiagram.dev/). Use this project as a starting point for building your own org-chart or tree-based diagram. Lean dependencies: Angular, ngDiagram, and ELK.js — no opinionated third-party UI libraries.
 
 Features:
 
@@ -22,14 +24,16 @@ Features:
 
 ## Getting Started
 
-**Prerequisites:** Node.js v20.19+ or v22.12+, npm 10+
+Built against Angular 21.2 and ngDiagram 1.3 (see `package.json`); Node.js 20.19+ or 22.12+ and npm 10+.
 
 ```bash
+git clone https://github.com/synergycodes/ng-diagram-orgchart.git
+cd ng-diagram-orgchart
 npm install
 npm start
 ```
 
-Open [http://localhost:4200](http://localhost:4200).
+Open [http://localhost:4200](http://localhost:4200) — a sample company of 13 people loads, laid out top-down. Try collapsing a subtree with the badge on a node, dragging one person onto another to change who they report to, and switching to the horizontal layout in the toolbar. The sample data lives in [`diagram/data.ts`](src/app/org-chart/diagram/data.ts) — replace it with your own.
 
 ## Scripts
 
@@ -218,7 +222,7 @@ src/app/org-chart/
 ## Tech Stack
 
 - **Angular 21** - standalone components, signals, OnPush change detection
-- **ng-diagram** - diagram rendering, viewport management, selection
+- **ngDiagram** ([`ng-diagram`](https://www.npmjs.com/package/ng-diagram) on npm) - diagram rendering, viewport management, selection
 - **ELK.js** - automatic tree layout
 - **Prettier** - code formatting
 
@@ -241,9 +245,7 @@ All of the above are the highest-priority items for the team to fix in ngDiagram
 
 For comprehensive ngDiagram documentation, examples, and API reference, visit: **[ngdiagram.dev/docs](https://www.ngdiagram.dev/docs)**
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Related reading: **[Building an org chart with ngDiagram — a hands-on write-up](https://dev.to/ngdiagram-dev/ive-used-gojs-for-years-heres-what-happened-when-i-built-an-org-chart-with-ngdiagram-1gkn)** on dev.to, by a developer coming from another diagram library: the brief, the build, and the trade-offs.
 
 ## Support
 
@@ -251,6 +253,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Discussions**: [GitHub Discussions](https://github.com/synergycodes/ng-diagram-orgchart/discussions)
 - **ngDiagram Discussions**: [GitHub Discussions](https://github.com/synergycodes/ng-diagram/discussions), [Discord](https://discord.gg/FDMjRuarFb)
 - **ngDiagram Documentation**: [ngdiagram.dev/docs](https://www.ngdiagram.dev/docs)
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ---
 

@@ -70,14 +70,40 @@ export async function performLayout(
 
   const laidOutNodesMap = new Map(laidOutNodes?.map((node) => [node.id, node]));
 
+  const isHorizontal = direction === 'RIGHT';
+
   return nodes.map((node) => {
     const laidOut = laidOutNodesMap.get(node.id);
+    if (laidOut?.x === undefined || laidOut?.y === undefined) {
+      return { ...node, position: node.position };
+    }
+
+    // ELK lays every node out as a uniform `width` x `height` cell (see
+    // `getUniformNodeSize`) so spacing stays stable across auto-sized cards
+    // of varying content width. Cards render at their own real width
+    // (`min-width`, not a fixed `width`), so aligning a node's top-left
+    // corner to its cell's top-left leaves narrower/wider cards off-center
+    // within the cell — parent-child connectors then jog sideways instead
+    // of running straight whenever adjacent cards have different
+    // content-driven widths.
+    //
+    // Only compensate along the *cross* axis (perpendicular to the tree's
+    // growth direction): that's the axis ELK uses to spread siblings apart
+    // and center a single child under its parent, so it's the one whose
+    // cell-relative center must match each card's real center. The *flow*
+    // axis (the one generations stack along) must stay top/left-aligned to
+    // the raw cell instead — every card in the same generation shares that
+    // coordinate, and centering it too would stagger cards of different
+    // heights within a row and break the shared row alignment fan-out
+    // connectors rely on.
+    const realWidth = node.measuredBounds?.width ?? node.size?.width ?? width;
+    const realHeight = node.measuredBounds?.height ?? node.size?.height ?? height;
+
     return {
       ...node,
-      position: {
-        x: laidOut?.x ?? node.position.x,
-        y: laidOut?.y ?? node.position.y,
-      },
+      position: isHorizontal
+        ? { x: laidOut.x, y: laidOut.y + (height - realHeight) / 2 }
+        : { x: laidOut.x + (width - realWidth) / 2, y: laidOut.y },
     };
   });
 }

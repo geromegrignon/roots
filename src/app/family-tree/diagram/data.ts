@@ -234,20 +234,20 @@ const PEOPLE: PersonSpec[] = [
   {
     key: 'g-grignon',
     parentKey: 'michel-grignon',
-    firstName: 'G.',
+    firstName: 'Gérôme',
     lastName: 'GRIGNON',
   },
   {
     key: 'a-grignon-gen6',
     parentKey: 'michel-grignon',
-    firstName: 'A.',
+    firstName: 'Alexandre',
     lastName: 'GRIGNON',
     // Spouse shown on the chart only as "? ?" - left unset.
   },
   {
     key: 'e-grignon',
     parentKey: 'michel-grignon',
-    firstName: 'E.',
+    firstName: 'Eléonore',
     lastName: 'GRIGNON',
   },
 

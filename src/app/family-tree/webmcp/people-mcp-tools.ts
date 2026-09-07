@@ -4,6 +4,7 @@ import {
   NgDiagramSelectionService,
   NgDiagramViewportService,
   type Node,
+  type Rect,
 } from 'ng-diagram';
 import { AddNodeService } from '../diagram/model/add-node.service';
 import { getIsCollapsed } from '../diagram/model/data-getters';
@@ -137,6 +138,71 @@ function collectAllDescendantIds(modelService: NgDiagramModelService, rootId: st
   }
 
   return ids;
+}
+
+/**
+ * Unions the `measuredBounds` of a set of nodes, mirroring ng-diagram's own node-bounds
+ * calculation but *without* folding in any edges. Returns `null` if none of the nodes have
+ * been measured yet.
+ *
+ * This exists to work around a quirk in `NgDiagramViewportService.zoomToFit`: its bounds
+ * calculation unconditionally unions in an edge-bounds rect, and when there are no edges to
+ * fit that rect comes back as `{ x: 0, y: 0, width: 0, height: 0 }` — a zero-size box sitting
+ * at the diagram's origin — which drags the overall fit out to include the origin instead of
+ * fitting tightly around the given nodes. There's also no way to ask `zoomToFit` for "no
+ * edges" from the outside: passing `edgeIds: []` is treated the same as omitting it entirely
+ * (i.e. "fit ALL edges in the diagram"), since the library only applies an edge filter when
+ * the array is non-empty. Both make `zoomToFit({ nodeIds, edgeIds: [] })` unusable for a
+ * person with no descendants (nothing to connect an edge to within the focus set), which is
+ * exactly the case `zoomToFitNodesOnly` below is for.
+ */
+function computeNodesBounds(modelService: NgDiagramModelService, nodeIds: Iterable<string>): Rect | null {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const id of nodeIds) {
+    const bounds = modelService.getNodeById(id)?.measuredBounds;
+    if (!bounds) continue;
+    minX = Math.min(minX, bounds.x);
+    minY = Math.min(minY, bounds.y);
+    maxX = Math.max(maxX, bounds.x + bounds.width);
+    maxY = Math.max(maxY, bounds.y + bounds.height);
+  }
+  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return null;
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+}
+
+/**
+ * Pans/zooms the viewport to fit a set of nodes with no edges involved, working around the
+ * `zoomToFit` limitation described on {@link computeNodesBounds}. Mirrors `zoomToFit`'s own
+ * padding/scale/centering behavior (default 50px padding, scale clamped to the diagram's
+ * configured min/max zoom, centered on the bounds) but computes bounds from node geometry
+ * alone. A no-op if the nodes haven't been measured yet or the viewport has no usable size.
+ */
+async function zoomToFitNodesOnly(
+  modelService: NgDiagramModelService,
+  viewportService: NgDiagramViewportService,
+  nodeIds: Iterable<string>,
+): Promise<void> {
+  const bounds = computeNodesBounds(modelService, nodeIds);
+  if (!bounds || bounds.width <= 0 || bounds.height <= 0) return;
+
+  const viewport = viewportService.viewport();
+  const viewportWidth = viewport.width ?? 0;
+  const viewportHeight = viewport.height ?? 0;
+  const padding = 50;
+  const availableWidth = viewportWidth - padding * 2;
+  const availableHeight = viewportHeight - padding * 2;
+  if (availableWidth <= 0 || availableHeight <= 0) return;
+
+  const rawScale = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
+  const scale = Math.max(viewportService.minZoom, Math.min(viewportService.maxZoom, rawScale));
+  if (!isFinite(scale) || scale <= 0) return;
+
+  const x = viewportWidth / 2 - (bounds.x + bounds.width / 2) * scale;
+  const y = viewportHeight / 2 - (bounds.y + bounds.height / 2) * scale;
+  await viewportService.setViewport(x, y, scale);
 }
 
 /**
@@ -637,8 +703,11 @@ export function registerPeopleWebMcpTools(): void {
   declareExperimentalWebMcpTool({
     name: 'focus_people',
     description:
-      "Selects one or more people in the diagram and pans/zooms the viewport to fit them, without " +
-      'changing any data. Useful for drawing the user or another tool\'s attention to specific people.',
+      'Selects one or more people in the diagram and pans/zooms the viewport to fit them together with ' +
+      'all of their descendants, so that whole descendant subtree fills the available viewport (like ' +
+      "zoom_to_fit, but scoped to the target(s) and their descendants instead of the whole tree). Doesn't " +
+      "change any data. Useful for drawing the user or another tool's attention to specific people and " +
+      'their branch of the family.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -659,8 +728,35 @@ export function registerPeopleWebMcpTools(): void {
         return { error: `Unknown person id(s): ${missing.join(', ')}.` };
       }
       selectionService.select(input.ids);
-      await viewportService.zoomToFit({ nodeIds: input.ids });
-      return { ids: input.ids, message: 'Focused on the requested people.' };
+
+      // Fit the requested people together with their entire descendant subtree, so the
+      // branch fills the viewport rather than just the (typically tiny) selected node(s).
+      const fitNodeIds = new Set<string>(input.ids);
+      for (const id of input.ids) {
+        for (const descendantId of collectAllDescendantIds(modelService, id)) {
+          fitNodeIds.add(descendantId);
+        }
+      }
+      // zoomToFit includes ALL edges by default when edgeIds isn't passed, which would pull
+      // in the rest of the tree — restrict it to edges that stay within the fit node set.
+      const fitEdgeIds = new Set<string>();
+      for (const id of fitNodeIds) {
+        for (const edge of modelService.getConnectedEdges(id)) {
+          if (fitNodeIds.has(edge.source) && fitNodeIds.has(edge.target)) {
+            fitEdgeIds.add(edge.id);
+          }
+        }
+      }
+
+      if (fitEdgeIds.size > 0) {
+        await viewportService.zoomToFit({ nodeIds: [...fitNodeIds], edgeIds: [...fitEdgeIds] });
+      } else {
+        // No edges stay within the fit set — e.g. focusing a person with no descendants.
+        // An empty edgeIds array isn't usable here (see computeNodesBounds' doc comment), so
+        // fit purely from node bounds instead.
+        await zoomToFitNodesOnly(modelService, viewportService, fitNodeIds);
+      }
+      return { ids: input.ids, message: 'Focused on the requested people and their descendants.' };
     },
   });
 

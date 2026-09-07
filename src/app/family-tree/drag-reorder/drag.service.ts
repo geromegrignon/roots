@@ -3,7 +3,7 @@ import { NgDiagramModelService, type NodeDragStartedEvent, type Rect } from 'ng-
 import { getIsHidden } from '../diagram/model/data-getters';
 import { LayoutService } from '../diagram/layout/layout.service';
 import { HierarchyService } from '../diagram/model/hierarchy.service';
-import { ORG_CHART_CONFIG } from '../org-chart.config';
+import { FAMILY_TREE_CONFIG } from '../family-tree.config';
 import type { HighlightedIndicator } from './interfaces';
 import { edgeToEdgeDistance, rectFromNode } from './proximity';
 import type { DropZone } from './zone-detection/index';
@@ -15,7 +15,7 @@ import { getZoneDetectionStrategy } from './zone-detection/index';
  */
 @Injectable()
 export class DragService {
-  private readonly config = inject(ORG_CHART_CONFIG);
+  private readonly config = inject(FAMILY_TREE_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly layoutService = inject(LayoutService);
   private readonly hierarchyService = inject(HierarchyService);

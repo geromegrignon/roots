@@ -1,3 +1,14 @@
 <div class="node" [style.--node-accent]="color()">
-  <app-node-header [fullName]="fullName()" [role]="role()" [color]="color()" />
+  <app-node-header [fullName]="fullName()" [subtitle]="lifespan()" [color]="color()" />
+
+  @if (spouseFirstName()) {
+    <div class="spouse-divider"></div>
+    <app-node-header
+      class="spouse"
+      [fullName]="spouseFullName()"
+      [subtitle]="spouseLifespan()"
+      [color]="spouseColor()"
+      avatarSize="md"
+    />
+  }
 </div>

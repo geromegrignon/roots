@@ -6,8 +6,8 @@ import {
   EDGE_IS_HIDDEN,
   IS_COLLAPSED,
   IS_HIDDEN,
-  type OrgChartEdgeData,
-  type OrgChartNodeData,
+  type FamilyTreeEdgeData,
+  type FamilyTreeNodeData,
 } from './interfaces';
 import { ModelChanges } from './model-changes';
 
@@ -27,7 +27,7 @@ export class ExpandCollapseService {
    *
    * @param nodeId - The node whose collapsed state should be flipped.
    * @param modelChanges - Accumulator for model changes; created if not provided.
-   * @returns Model changes and metadata — or `null` if the node is not a valid org-chart node.
+   * @returns Model changes and metadata — or `null` if the node is not a valid family-tree node.
    *          `toggledSubtreeIds` — IDs of visible descendants affected by the toggle (for layout animation).
    *          `collapsing` — the collapsed state after the toggle (`true` = collapsing, `false` = expanding).
    */
@@ -35,7 +35,7 @@ export class ExpandCollapseService {
     nodeId: string,
     modelChanges: ModelChanges = new ModelChanges(),
   ): ToggleResult | null {
-    const node = this.modelService.getNodeById<OrgChartNodeData>(nodeId);
+    const node = this.modelService.getNodeById<FamilyTreeNodeData>(nodeId);
     if (!node) return null;
 
     const collapsing = !getIsCollapsed(node);
@@ -80,7 +80,7 @@ export class ExpandCollapseService {
         if (edge.source !== parentId) continue;
         ids.add(edge.target);
 
-        const childNode = this.modelService.getNodeById<OrgChartNodeData>(edge.target);
+        const childNode = this.modelService.getNodeById<FamilyTreeNodeData>(edge.target);
         if (childNode && !getIsCollapsed(childNode)) stack.push(edge.target);
       }
     }
@@ -104,7 +104,7 @@ export class ExpandCollapseService {
         if (edge.source === parentId) {
           count++;
 
-          const childNode = this.modelService.getNodeById<OrgChartNodeData>(edge.target);
+          const childNode = this.modelService.getNodeById<FamilyTreeNodeData>(edge.target);
           const collapsedCount = childNode ? getCollapsedChildrenCount(childNode) : undefined;
           if (collapsedCount != null) {
             count += collapsedCount;
@@ -123,17 +123,17 @@ export class ExpandCollapseService {
     subtreeIds: Set<string>,
     hidden: boolean,
   ): {
-    nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[];
-    edgeUpdates: { id: string; data: Partial<OrgChartEdgeData> }[];
+    nodeUpdates: { id: string; data: Partial<FamilyTreeNodeData> }[];
+    edgeUpdates: { id: string; data: Partial<FamilyTreeEdgeData> }[];
   } {
-    const nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[] = [];
+    const nodeUpdates: { id: string; data: Partial<FamilyTreeNodeData> }[] = [];
     for (const id of subtreeIds) {
-      const node = this.modelService.getNodeById<OrgChartNodeData>(id);
+      const node = this.modelService.getNodeById<FamilyTreeNodeData>(id);
       if (!node) continue;
       nodeUpdates.push({ id, data: { [IS_HIDDEN]: hidden } });
     }
 
-    const edgeUpdates: { id: string; data: Partial<OrgChartEdgeData> }[] = [];
+    const edgeUpdates: { id: string; data: Partial<FamilyTreeEdgeData> }[] = [];
     for (const id of subtreeIds) {
       for (const edge of this.modelService.getConnectedEdges(id)) {
         if (edge.target === id) {

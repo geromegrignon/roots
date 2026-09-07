@@ -20,9 +20,10 @@ import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sid
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { ToolbarHorizontalComponent } from '../toolbar-horizontal/toolbar-horizontal.component';
 import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
+import { registerPeopleWebMcpTools } from '../webmcp/people-mcp-tools';
 
 @Component({
-  selector: 'app-org-chart-page',
+  selector: 'app-family-tree-page',
   imports: [
     DiagramComponent,
     PropertiesSidebarComponent,
@@ -32,13 +33,13 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     ViewportBoundsDirective,
     ViewportOverlayDirective,
   ],
-  templateUrl: './org-chart-page.component.html',
-  styleUrl: './org-chart-page.component.scss',
+  templateUrl: './family-tree-page.component.html',
+  styleUrl: './family-tree-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     provideNgDiagram(),
-    // To customize org-chart settings, uncomment and modify:
-    // provideOrgChartConfig({ animation: { durationMs: 500 }, viewport: { zoomStep: 0.2 } }),
+    // To customize family-tree settings, uncomment and modify:
+    // provideFamilyTreeConfig({ animation: { durationMs: 500 }, viewport: { zoomStep: 0.2 } }),
     PropertiesSidebarService,
     NodeMutationService,
     SortOrderService,
@@ -54,4 +55,12 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     NodeVisibilityConfigService,
   ],
 })
-export class OrgChartPageComponent {}
+export class FamilyTreePageComponent {
+  constructor() {
+    // Exposes add/update/get/list tools for the people in the tree to a WebMCP
+    // agent (https://angular.dev/ai/webmcp). Called here, in this component's own
+    // constructor, so the tools resolve NgDiagramModelService, HierarchyService,
+    // AddNodeService, and NodeMutationService from this component's providers.
+    registerPeopleWebMcpTools();
+  }
+}

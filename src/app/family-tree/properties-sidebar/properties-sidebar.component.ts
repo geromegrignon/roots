@@ -36,8 +36,8 @@ export class PropertiesSidebarComponent {
   protected readonly state = this.sidebarService.sidebarState;
   protected readonly selectedNode = this.sidebarService.selectedNode;
   protected readonly selectedNodeParentId = this.sidebarService.selectedNodeParentId;
-  protected readonly reportsToCandidateNodes = this.sidebarService.reportsToCandidateNodes;
-  protected readonly roleOptions = this.sidebarService.roleOptions;
+  protected readonly parentCandidateNodes = this.sidebarService.parentCandidateNodes;
+  protected readonly genderOptions = this.sidebarService.genderOptions;
 
   protected onHeaderToggle(): void {
     this.sidebarService.toggleSidebarVisibility();

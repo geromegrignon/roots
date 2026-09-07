@@ -1,53 +1,47 @@
 export enum NodeTemplateType {
-  OrgChartNode = 'orgChartNode',
+  FamilyTreeNode = 'familyTreeNode',
 }
 
 export enum EdgeTemplateType {
-  OrgChartEdge = 'orgChartEdge',
+  FamilyTreeEdge = 'familyTreeEdge',
 }
 
-export enum OrgChartRole {
-  PlantDirector = 'Plant Director',
-  ChiefEngineer = 'Chief Engineer',
-  OperationsManager = 'Operations Manager',
-  SafetyComplianceLead = 'Safety & Compliance Lead',
-  HrManager = 'HR Manager',
-  RdSpecialist = 'R&D Specialist',
-  EngineeringIntern = 'Engineering Intern',
-  MaintenanceTechnician = 'Maintenance Technician',
-  QaAuditor = 'QA Auditor',
-  WarehouseOperator = 'Warehouse Operator',
-  SafetyInspector = 'Safety Inspector',
-  ProcurementSpecialist = 'Procurement Specialist',
-  ShiftSupervisor = 'Shift Supervisor',
-  ProcessEngineer = 'Process Engineer',
+export enum Gender {
+  Female = 'female',
+  Male = 'male',
 }
 
-export const ORG_CHART_ROLE_COLORS: Record<OrgChartRole, string> = {
-  [OrgChartRole.PlantDirector]: 'var(--ngd-role-plant-director)',
-  [OrgChartRole.ChiefEngineer]: 'var(--ngd-role-chief-engineer)',
-  [OrgChartRole.OperationsManager]: 'var(--ngd-role-operations-manager)',
-  [OrgChartRole.SafetyComplianceLead]: 'var(--ngd-role-safety-compliance-lead)',
-  [OrgChartRole.HrManager]: 'var(--ngd-role-hr-manager)',
-  [OrgChartRole.RdSpecialist]: 'var(--ngd-role-rd-specialist)',
-  [OrgChartRole.EngineeringIntern]: 'var(--ngd-role-engineering-intern)',
-  [OrgChartRole.MaintenanceTechnician]: 'var(--ngd-role-maintenance-technician)',
-  [OrgChartRole.QaAuditor]: 'var(--ngd-role-qa-auditor)',
-  [OrgChartRole.WarehouseOperator]: 'var(--ngd-role-warehouse-operator)',
-  [OrgChartRole.SafetyInspector]: 'var(--ngd-role-safety-inspector)',
-  [OrgChartRole.ProcurementSpecialist]: 'var(--ngd-role-procurement-specialist)',
-  [OrgChartRole.ShiftSupervisor]: 'var(--ngd-role-shift-supervisor)',
-  [OrgChartRole.ProcessEngineer]: 'var(--ngd-role-process-engineer)',
+export const GENDER_LABELS: Record<Gender, string> = {
+  [Gender.Female]: 'Female',
+  [Gender.Male]: 'Male',
 };
 
-export function getColorForRole(role: OrgChartRole | undefined): string | undefined {
-  return role ? ORG_CHART_ROLE_COLORS[role] : undefined;
+const GENDER_COLORS: Record<Gender, string> = {
+  [Gender.Female]: 'var(--ngd-gender-female)',
+  [Gender.Male]: 'var(--ngd-gender-male)',
+};
+
+export function getColorForGender(gender: Gender | undefined): string | undefined {
+  return gender ? GENDER_COLORS[gender] : undefined;
 }
 
-export type OrgChartNodeData = OrgChartOccupiedNodeData | OrgChartVacantNodeData;
+/** Renders a person's birth/death years as "1970 – 2020", "b. 1970", or "" if neither is set. */
+export function formatLifespan(birthYear?: number, deathYear?: number): string {
+  if (birthYear && deathYear) return `${birthYear} – ${deathYear}`;
+  if (birthYear) return `b. ${birthYear}`;
+  if (deathYear) return `d. ${deathYear}`;
+  return '';
+}
+
+/** Joins first/last name into a single display string, e.g. for avatar initials. */
+export function formatFullName(firstName?: string, lastName?: string): string {
+  return [firstName, lastName].filter(Boolean).join(' ');
+}
+
+export type FamilyTreeNodeData = FamilyTreeOccupiedNodeData | FamilyTreeVacantNodeData;
 
 /**
- * Centralized property keys for org-chart node and edge data.
+ * Centralized property keys for family-tree node and edge data.
  *
  * To rename a property, change the key here and in the interface.
  */
@@ -58,26 +52,40 @@ export const COLLAPSED_CHILDREN_COUNT = 'collapsedChildrenCount' as const;
 export const SORT_ORDER = 'sortOrder' as const;
 export const EDGE_IS_HIDDEN = 'isHidden' as const;
 
-export interface OrgChartEdgeData {
-  type: 'orgChart';
+export interface FamilyTreeEdgeData {
+  type: 'familyTree';
   isHidden?: boolean;
 }
 
-export interface OrgChartOccupiedNodeData extends OrgChartBaseNodeData {
+/**
+ * A family-tree node represents one "family unit": a primary person, plus an
+ * optional spouse rendered as a second section in the same card. Children
+ * hang off this single node exactly like the org-chart template's plain
+ * manager -> report edges — there is no separate union/couple node and no
+ * second-parent edge. Keeping the underlying graph a strict single-parent
+ * tree is deliberate: it's what lets the original ELK tree layout keep
+ * working unmodified.
+ */
+export interface FamilyTreeOccupiedNodeData extends FamilyTreeBaseNodeData {
   type: 'occupied';
-  fullName: string;
+  firstName: string;
+  lastName?: string;
+  gender?: Gender;
+  birthYear?: number;
+  deathYear?: number;
+  /** Spouse fields mirror the primary person's own fields above. */
+  spouseFirstName?: string;
+  spouseLastName?: string;
+  spouseGender?: Gender;
+  spouseBirthYear?: number;
+  spouseDeathYear?: number;
 }
 
-export interface OrgChartVacantNodeData extends OrgChartBaseNodeData {
+export interface FamilyTreeVacantNodeData extends FamilyTreeBaseNodeData {
   type: 'vacant';
 }
 
-export interface OrgChartBaseNodeData {
-  role?: OrgChartRole;
-  description?: string;
-  reports: number;
-  headcount: number;
-  utilization: number;
+export interface FamilyTreeBaseNodeData {
   sortOrder?: number;
   isCollapsed?: boolean;
   collapsedChildrenCount?: number;

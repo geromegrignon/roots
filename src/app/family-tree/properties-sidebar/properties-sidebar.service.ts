@@ -1,17 +1,18 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
-import { isOccupiedNode, isOrgChartNode } from '../diagram/model/guards';
+import { isOccupiedNode, isFamilyTreeNode } from '../diagram/model/guards';
 import { HierarchyService } from '../diagram/model/hierarchy.service';
 import {
-  OrgChartRole,
-  type OrgChartNodeData,
-  type OrgChartOccupiedNodeData,
+  Gender,
+  GENDER_LABELS,
+  type FamilyTreeNodeData,
+  type FamilyTreeOccupiedNodeData,
 } from '../diagram/model/interfaces';
 import { type ComboboxOption } from '../shared/combobox/combobox.component';
 
 /**
  * Manages sidebar visibility state and exposes selection-derived data
- * (selected nodes, parent info, reports-to candidates).
+ * (selected nodes, parent info, parent-field candidates).
  */
 @Injectable()
 export class PropertiesSidebarService {
@@ -21,28 +22,29 @@ export class PropertiesSidebarService {
 
   readonly isExpanded = signal(false);
 
-  readonly selectedOrgChartNodes = computed<Node<OrgChartNodeData>[]>(() =>
-    this.selectionService.selection().nodes.filter(isOrgChartNode),
+  readonly selectedFamilyTreeNodes = computed<Node<FamilyTreeNodeData>[]>(() =>
+    this.selectionService.selection().nodes.filter(isFamilyTreeNode),
   );
-  readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(() =>
-    this.selectedOrgChartNodes().at(0),
+  readonly selectedNode = computed<Node<FamilyTreeNodeData> | undefined>(() =>
+    this.selectedFamilyTreeNodes().at(0),
   );
-  /** Valid "reports to" targets: all occupied nodes except the selected node and its descendants. */
-  readonly reportsToCandidateNodes = computed<Node<OrgChartOccupiedNodeData>[]>(() => {
+  /** Valid parent targets: all occupied nodes except the selected node and its descendants. */
+  readonly parentCandidateNodes = computed<Node<FamilyTreeOccupiedNodeData>[]>(() => {
     const selectedNode = this.selectedNode();
     if (!selectedNode) return [];
     const descendantIds = this.hierarchyService.getDescendantIds(selectedNode.id);
     return this.modelService
       .nodes()
       .filter(
-        (node): node is Node<OrgChartOccupiedNodeData> =>
+        (node): node is Node<FamilyTreeOccupiedNodeData> =>
           node.id !== selectedNode.id && !descendantIds.has(node.id) && isOccupiedNode(node),
       );
   });
 
-  readonly roleOptions: ComboboxOption<OrgChartRole>[] = Object.values(OrgChartRole)
-    .sort((a, b) => a.localeCompare(b))
-    .map((role) => ({ value: role, label: role }));
+  readonly genderOptions: ComboboxOption<Gender>[] = Object.values(Gender).map((gender) => ({
+    value: gender,
+    label: GENDER_LABELS[gender],
+  }));
 
   readonly selectedNodeParentId = computed<string | null>(() => {
     const node = this.selectedNode();
@@ -50,7 +52,7 @@ export class PropertiesSidebarService {
   });
 
   readonly sidebarState = computed<'empty' | 'single' | 'multi'>(() => {
-    const selectedNodes = this.selectedOrgChartNodes();
+    const selectedNodes = this.selectedFamilyTreeNodes();
     if (selectedNodes.length === 0) return 'empty';
     if (selectedNodes.length > 1) return 'multi';
     return 'single';

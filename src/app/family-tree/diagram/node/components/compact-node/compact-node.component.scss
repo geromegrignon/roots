@@ -12,3 +12,13 @@
   gap: var(--ngd-token-spacing-node4-gap);
   box-shadow: var(--card-box-shadow);
 }
+
+.spouse-divider {
+  height: 1px;
+  background: var(--card-border-color);
+  margin: 2px 0; /* No Figma token */
+}
+
+.spouse {
+  opacity: 0.85; /* No Figma token - de-emphasize spouse relative to primary person */
+}

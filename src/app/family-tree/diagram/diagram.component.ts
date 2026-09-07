@@ -15,13 +15,13 @@ import {
 import { DragReorderService } from '../drag-reorder/drag-reorder.service';
 import { DragService } from '../drag-reorder/drag.service';
 import { DropService } from '../drag-reorder/drop.service';
-import { ORG_CHART_CONFIG } from '../org-chart.config';
+import { FAMILY_TREE_CONFIG } from '../family-tree.config';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
 import { EdgeComponent } from './edge.component';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
-import { isOrgChartNode } from './model/guards';
+import { isFamilyTreeNode } from './model/guards';
 import { HierarchyService } from './model/hierarchy.service';
 import { EdgeTemplateType, NodeTemplateType } from './model/interfaces';
 import { ModelApplyService } from './model/model-apply.service';
@@ -34,7 +34,7 @@ import { NodeComponent } from './node/node.component';
 /**
  * Org Chart Diagram
  *
- * Demonstrates a collapsible org-chart layout using ng-diagram with ELK.js for automatic
+ * Demonstrates a collapsible family-tree layout using ng-diagram with ELK.js for automatic
  * node positioning. Nodes with children display a toggle button to expand/collapse
  * their subtree. The `hasChildren` flag on each node is kept in sync automatically
  * as the user draws or deletes edges.
@@ -48,7 +48,7 @@ import { NodeComponent } from './node/node.component';
   providers: [DragService, DropService, DragReorderService],
 })
 export class DiagramComponent {
-  private readonly orgChartConfig = inject(ORG_CHART_CONFIG);
+  private readonly familyTreeConfig = inject(FAMILY_TREE_CONFIG);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
@@ -69,7 +69,7 @@ export class DiagramComponent {
     linking: {
       finalEdgeDataBuilder: (edge: Edge) => ({
         ...edge,
-        type: EdgeTemplateType.OrgChartEdge,
+        type: EdgeTemplateType.FamilyTreeEdge,
       }),
     },
     watermarkPosition: 'bottom-left',
@@ -78,9 +78,9 @@ export class DiagramComponent {
     },
   } satisfies NgDiagramConfig;
 
-  nodeTemplateMap = new NgDiagramNodeTemplateMap([[NodeTemplateType.OrgChartNode, NodeComponent]]);
+  nodeTemplateMap = new NgDiagramNodeTemplateMap([[NodeTemplateType.FamilyTreeNode, NodeComponent]]);
 
-  edgeTemplateMap = new NgDiagramEdgeTemplateMap([[EdgeTemplateType.OrgChartEdge, EdgeComponent]]);
+  edgeTemplateMap = new NgDiagramEdgeTemplateMap([[EdgeTemplateType.FamilyTreeEdge, EdgeComponent]]);
 
   model = initializeModel(diagramModel);
 
@@ -122,10 +122,10 @@ export class DiagramComponent {
     }
   }
 
-  /** Opens the properties sidebar when org-chart nodes are selected. */
+  /** Opens the properties sidebar when family-tree nodes are selected. */
   onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {
-    const hasOrgChartNodes = event.nodes.some(isOrgChartNode);
-    if (hasOrgChartNodes) {
+    const hasFamilyTreeNodes = event.nodes.some(isFamilyTreeNode);
+    if (hasFamilyTreeNodes) {
       this.sidebarService.expandSidebar();
     }
   }
@@ -133,7 +133,7 @@ export class DiagramComponent {
   /** Fits all nodes in view, accounting for overlay insets plus extra padding. */
   private zoomToFit(): void {
     const insets = this.nodeVisibilityConfigService.getViewportInsets();
-    const pad = this.orgChartConfig.viewport.zoomToFitPadding;
+    const pad = this.familyTreeConfig.viewport.zoomToFitPadding;
     this.viewportService.zoomToFit({
       padding: [
         (insets.top ?? 0) + pad,

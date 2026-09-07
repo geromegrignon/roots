@@ -1,13 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramViewportService } from 'ng-diagram';
-import { ORG_CHART_CONFIG } from '../../org-chart.config';
+import { FAMILY_TREE_CONFIG } from '../../family-tree.config';
 import { ensureNodeVisible } from './viewport';
 import { NodeVisibilityConfigService } from './node-visibility-config.service';
 
 /** Pans the viewport to bring a node into the visible (non-obscured) area. */
 @Injectable()
 export class NodeVisibilityService {
-  private readonly config = inject(ORG_CHART_CONFIG);
+  private readonly config = inject(FAMILY_TREE_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly configService = inject(NodeVisibilityConfigService, { optional: true });

@@ -1,20 +1,39 @@
 @switch (variant()) {
   @case ('vacant') {
-    <app-vacant-node [role]="node().data.role" />
+    <app-vacant-node />
   }
   @case ('compact') {
     @let data = occupiedData();
-    <app-compact-node [fullName]="data?.fullName" [role]="data?.role" [color]="color()" />
+    <app-compact-node
+      [firstName]="data?.firstName"
+      [lastName]="data?.lastName"
+      [gender]="data?.gender"
+      [birthYear]="data?.birthYear"
+      [deathYear]="data?.deathYear"
+      [color]="color()"
+      [spouseFirstName]="data?.spouseFirstName"
+      [spouseLastName]="data?.spouseLastName"
+      [spouseGender]="data?.spouseGender"
+      [spouseBirthYear]="data?.spouseBirthYear"
+      [spouseDeathYear]="data?.spouseDeathYear"
+      [spouseColor]="spouseColor()"
+    />
   }
   @case ('full') {
     @let data = occupiedData();
     <app-full-node
-      [fullName]="data?.fullName"
-      [role]="data?.role"
+      [firstName]="data?.firstName"
+      [lastName]="data?.lastName"
+      [gender]="data?.gender"
+      [birthYear]="data?.birthYear"
+      [deathYear]="data?.deathYear"
       [color]="color()"
-      [reports]="data?.reports"
-      [headcount]="data?.headcount"
-      [utilization]="data?.utilization"
+      [spouseFirstName]="data?.spouseFirstName"
+      [spouseLastName]="data?.spouseLastName"
+      [spouseGender]="data?.spouseGender"
+      [spouseBirthYear]="data?.spouseBirthYear"
+      [spouseDeathYear]="data?.spouseDeathYear"
+      [spouseColor]="spouseColor()"
     />
   }
 }

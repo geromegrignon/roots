@@ -1,12 +1,12 @@
 import { type Edge, type Node } from 'ng-diagram';
 import {
-  OrgChartEdgeData,
-  type OrgChartNodeData,
-  type OrgChartOccupiedNodeData,
-  type OrgChartVacantNodeData,
+  FamilyTreeEdgeData,
+  type FamilyTreeNodeData,
+  type FamilyTreeOccupiedNodeData,
+  type FamilyTreeVacantNodeData,
 } from './interfaces';
 
-export function isOrgChartNodeData(data: unknown): data is OrgChartNodeData {
+export function isFamilyTreeNodeData(data: unknown): data is FamilyTreeNodeData {
   return (
     typeof data === 'object' &&
     data !== null &&
@@ -15,32 +15,32 @@ export function isOrgChartNodeData(data: unknown): data is OrgChartNodeData {
   );
 }
 
-export function isOccupiedNodeData(data: unknown): data is OrgChartOccupiedNodeData {
-  return isOrgChartNodeData(data) && data.type === 'occupied';
+export function isOccupiedNodeData(data: unknown): data is FamilyTreeOccupiedNodeData {
+  return isFamilyTreeNodeData(data) && data.type === 'occupied';
 }
 
-export function isVacantNodeData(data: unknown): data is OrgChartVacantNodeData {
-  return isOrgChartNodeData(data) && data.type === 'vacant';
+export function isVacantNodeData(data: unknown): data is FamilyTreeVacantNodeData {
+  return isFamilyTreeNodeData(data) && data.type === 'vacant';
 }
 
-export function isOrgChartNode(node: Node | null | undefined): node is Node<OrgChartNodeData> {
-  return !!node && isOrgChartNodeData(node.data);
+export function isFamilyTreeNode(node: Node | null | undefined): node is Node<FamilyTreeNodeData> {
+  return !!node && isFamilyTreeNodeData(node.data);
 }
 
 export function isOccupiedNode(
   node: Node | null | undefined,
-): node is Node<OrgChartOccupiedNodeData> {
+): node is Node<FamilyTreeOccupiedNodeData> {
   return !!node && isOccupiedNodeData(node.data);
 }
 
-export function isVacantNode(node: Node | null | undefined): node is Node<OrgChartVacantNodeData> {
+export function isVacantNode(node: Node | null | undefined): node is Node<FamilyTreeVacantNodeData> {
   return !!node && isVacantNodeData(node.data);
 }
 
-export function isOrgChartEdgeData(data: unknown): data is OrgChartEdgeData {
-  return typeof data === 'object' && data !== null && 'type' in data && data.type === 'orgChart';
+export function isFamilyTreeEdgeData(data: unknown): data is FamilyTreeEdgeData {
+  return typeof data === 'object' && data !== null && 'type' in data && data.type === 'familyTree';
 }
 
-export function isOrgChartEdge(edge: Edge | null | undefined): edge is Edge<OrgChartEdgeData> {
-  return !!edge && isOrgChartEdgeData(edge.data);
+export function isFamilyTreeEdge(edge: Edge | null | undefined): edge is Edge<FamilyTreeEdgeData> {
+  return !!edge && isFamilyTreeEdgeData(edge.data);
 }

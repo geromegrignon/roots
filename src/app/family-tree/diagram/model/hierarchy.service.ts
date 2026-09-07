@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { getHasChildren, getIsCollapsed } from './data-getters';
 import { ExpandCollapseService } from './expand-collapse.service';
-import { EdgeTemplateType, HAS_CHILDREN, type OrgChartNodeData } from './interfaces';
+import { EdgeTemplateType, HAS_CHILDREN, type FamilyTreeNodeData } from './interfaces';
 import { ModelChanges } from './model-changes';
 import { SortOrderService } from './sort-order.service';
 import type { VisibilityHint } from '../layout/layout.service';
@@ -12,7 +12,7 @@ export interface UpdateNodeParentResult {
   visibilityHint?: VisibilityHint;
 }
 
-/** Manages parent–child relationships in the org-chart tree. */
+/** Manages parent–child relationships in the family-tree tree. */
 @Injectable()
 export class HierarchyService {
   private readonly modelService = inject(NgDiagramModelService);
@@ -79,7 +79,7 @@ export class HierarchyService {
 
     let visibilityHint: VisibilityHint | undefined;
     if (isParentChange && newParentId) {
-      const targetNode = this.modelService.getNodeById<OrgChartNodeData>(newParentId);
+      const targetNode = this.modelService.getNodeById<FamilyTreeNodeData>(newParentId);
       if (targetNode && getIsCollapsed(targetNode)) {
         const result = this.expandCollapseService.prepareToggle(newParentId, modelChanges);
         if (result) {
@@ -138,8 +138,8 @@ export class HierarchyService {
         sourcePort: 'port-out',
         target: nodeId,
         targetPort: 'port-in',
-        type: EdgeTemplateType.OrgChartEdge,
-        data: { type: 'orgChart' },
+        type: EdgeTemplateType.FamilyTreeEdge,
+        data: { type: 'familyTree' },
       });
     }
   }
@@ -159,7 +159,7 @@ export class HierarchyService {
         .some((e) => e.source === parentId && (!excludeChildIds || !excludeChildIds.has(e.target)));
       if (stillHasChildren) continue;
 
-      const node = this.modelService.getNodeById<OrgChartNodeData>(parentId);
+      const node = this.modelService.getNodeById<FamilyTreeNodeData>(parentId);
       if (node && getHasChildren(node)) {
         changes.addNodeUpdates({ id: parentId, data: { [HAS_CHILDREN]: false } });
       }
@@ -178,7 +178,7 @@ export class HierarchyService {
         .getConnectedEdges(oldParentId)
         .some((e) => e.source === oldParentId && e.target !== nodeId);
 
-      const oldParent = this.modelService.getNodeById<OrgChartNodeData>(oldParentId);
+      const oldParent = this.modelService.getNodeById<FamilyTreeNodeData>(oldParentId);
       if (oldParent && getHasChildren(oldParent) && !oldParentWillHaveChildren) {
         changes.addNodeUpdates({
           id: oldParentId,
@@ -188,7 +188,7 @@ export class HierarchyService {
     }
 
     if (newParentId) {
-      const newParent = this.modelService.getNodeById<OrgChartNodeData>(newParentId);
+      const newParent = this.modelService.getNodeById<FamilyTreeNodeData>(newParentId);
       if (newParent && !getHasChildren(newParent)) {
         changes.addNodeUpdates({
           id: newParentId,

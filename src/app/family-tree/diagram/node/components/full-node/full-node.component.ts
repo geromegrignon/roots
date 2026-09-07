@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { formatFullName, formatLifespan, type Gender } from '../../../model/interfaces';
 import { NodeHeaderComponent } from '../node-header/node-header.component';
 
 @Component({
@@ -9,10 +10,26 @@ import { NodeHeaderComponent } from '../node-header/node-header.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FullNodeComponent {
-  fullName = input<string>();
-  role = input<string>();
+  firstName = input<string>();
+  lastName = input<string>();
+  gender = input<Gender>();
+  birthYear = input<number>();
+  deathYear = input<number>();
   color = input<string>();
-  reports = input<number>();
-  headcount = input<number>();
-  utilization = input<number>();
+
+  spouseFirstName = input<string>();
+  spouseLastName = input<string>();
+  spouseGender = input<Gender>();
+  spouseBirthYear = input<number>();
+  spouseDeathYear = input<number>();
+  spouseColor = input<string>();
+
+  protected readonly fullName = computed(() => formatFullName(this.firstName(), this.lastName()));
+  protected readonly spouseFullName = computed(() =>
+    formatFullName(this.spouseFirstName(), this.spouseLastName()),
+  );
+  protected readonly lifespan = computed(() => formatLifespan(this.birthYear(), this.deathYear()));
+  protected readonly spouseLifespan = computed(() =>
+    formatLifespan(this.spouseBirthYear(), this.spouseDeathYear()),
+  );
 }

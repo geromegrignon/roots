@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
 import { type Node } from 'ng-diagram';
-import { type OrgChartOccupiedNodeData, getColorForRole } from '../../../diagram/model/interfaces';
+import {
+  formatFullName,
+  getColorForGender,
+  type FamilyTreeOccupiedNodeData,
+} from '../../../diagram/model/interfaces';
 import {
   ComboboxNullOptionDef,
   ComboboxOptionDef,
@@ -14,7 +18,7 @@ import {
 import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
 
 @Component({
-  selector: 'app-reports-to-field',
+  selector: 'app-parent-field',
   imports: [
     ComboboxComponent,
     ComboboxOptionDef,
@@ -23,11 +27,11 @@ import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initial
     InitialsAvatarComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './reports-to-field.component.html',
-  styleUrl: './reports-to-field.component.scss',
+  templateUrl: './parent-field.component.html',
+  styleUrl: './parent-field.component.scss',
 })
-export class ReportsToFieldComponent implements FormValueControl<string | null> {
-  candidateNodes = input.required<Node<OrgChartOccupiedNodeData>[]>();
+export class ParentFieldComponent implements FormValueControl<string | null> {
+  candidateNodes = input.required<Node<FamilyTreeOccupiedNodeData>[]>();
   triggerId = input<string>();
 
   readonly value = model<string | null>(null);
@@ -38,9 +42,9 @@ export class ReportsToFieldComponent implements FormValueControl<string | null> 
       .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
-  private mapNodeToOption = (node: Node<OrgChartOccupiedNodeData>): ComboboxOption<string> => ({
+  private mapNodeToOption = (node: Node<FamilyTreeOccupiedNodeData>): ComboboxOption<string> => ({
     value: node.id,
-    label: node.data.fullName,
-    data: { color: getColorForRole(node.data.role) },
+    label: formatFullName(node.data.firstName, node.data.lastName),
+    data: { color: getColorForGender(node.data.gender) },
   });
 }

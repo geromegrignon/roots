@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 
-export interface OrgChartConfig {
+export interface FamilyTreeConfig {
   /** Animation duration and timing. */
   animation: {
     /** Duration in ms for layout transitions and viewport pans. */
@@ -44,7 +44,7 @@ export interface OrgChartConfig {
   };
 }
 
-export const ORG_CHART_DEFAULTS: OrgChartConfig = {
+export const FAMILY_TREE_DEFAULTS: FamilyTreeConfig = {
   animation: { durationMs: 300, layoutEnabled: true, viewportEnabled: true },
   layout: { nodeSpacing: 100 },
   viewport: {
@@ -62,23 +62,23 @@ export const ORG_CHART_DEFAULTS: OrgChartConfig = {
   },
 };
 
-export const ORG_CHART_CONFIG = new InjectionToken<OrgChartConfig>('ORG_CHART_CONFIG', {
-  factory: () => ORG_CHART_DEFAULTS,
+export const FAMILY_TREE_CONFIG = new InjectionToken<FamilyTreeConfig>('FAMILY_TREE_CONFIG', {
+  factory: () => FAMILY_TREE_DEFAULTS,
 });
 
-export type PartialOrgChartConfig = {
-  [K in keyof OrgChartConfig]?: Partial<OrgChartConfig[K]>;
+export type PartialFamilyTreeConfig = {
+  [K in keyof FamilyTreeConfig]?: Partial<FamilyTreeConfig[K]>;
 };
 
-/** Provides a customized org-chart config by deep-merging overrides with defaults. */
-export function provideOrgChartConfig(overrides: PartialOrgChartConfig) {
+/** Provides a customized family-tree config by deep-merging overrides with defaults. */
+export function provideFamilyTreeConfig(overrides: PartialFamilyTreeConfig) {
   return {
-    provide: ORG_CHART_CONFIG,
-    useValue: mergeConfig(ORG_CHART_DEFAULTS, overrides),
+    provide: FAMILY_TREE_CONFIG,
+    useValue: mergeConfig(FAMILY_TREE_DEFAULTS, overrides),
   };
 }
 
-function mergeConfig(defaults: OrgChartConfig, overrides: PartialOrgChartConfig): OrgChartConfig {
+function mergeConfig(defaults: FamilyTreeConfig, overrides: PartialFamilyTreeConfig): FamilyTreeConfig {
   return {
     animation: { ...defaults.animation, ...overrides.animation },
     layout: { ...defaults.layout, ...overrides.layout },

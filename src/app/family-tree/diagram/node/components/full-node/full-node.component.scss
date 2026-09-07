@@ -13,70 +13,12 @@
   box-shadow: var(--card-box-shadow);
 }
 
-.cards {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--ngd-token-spacing-node4-gap);
-
-  .card {
-    display: flex;
-    padding: var(--ngd-token-spacing-node-head-v-pad); /* No Figma token */
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    flex: 1 0 0;
-    border-radius: var(--ngd-token-radius-node-head-icon); /* No Figma token */
-    background: var(--ngd-ui-bg-secondary-default);
-  }
+.spouse-divider {
+  height: 1px;
+  background: var(--card-border-color);
+  margin: 2px 0; /* No Figma token */
 }
 
-.stat-label {
-  color: var(--ngd-txt-secondary-default);
-  text-transform: uppercase;
-  display: flex;
-  padding-bottom: var(--ngd-token-spacing-spacing-4); /* No Figma token */
-  align-items: center;
-}
-
-.stat-value {
-  color: var(--ngd-txt-primary-default);
-}
-
-.capacity-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(
-    --ngd-token-spacing-progressbar-gap
-  ); /* No Figma token - wrong token --ngd-token-spacing-progressbar-gap */
-}
-
-.capacity-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.capacity-label {
-  color: var(--ngd-txt-tertiary-default);
-}
-
-.capacity-value {
-  color: var(--ngd-txt-tertiary-default);
-  text-align: right;
-}
-
-.capacity-bar {
-  display: flex;
-  height: 7px; /* No Figma token */
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
-  border-radius: var(--ngd-token-radius-progressbar);
-  background: var(--ngd-colors-gray-650); /* No Figma token */
-  overflow: hidden;
-}
-
-.capacity-fill {
-  height: 100%;
-  background: var(--node-accent, var(--ngd-colors-acc3-400)); /* No Figma token - default value */
+.spouse {
+  opacity: 0.85; /* No Figma token - de-emphasize spouse relative to primary person */
 }

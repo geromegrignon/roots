@@ -853,19 +853,7 @@ html[data-theme='dark'] {
   --ngd-token-stroke-edge-regular: var(--ngd-primitive-even-2);
   --ngd-token-stroke-edge-bold: var(--ngd-primitive-odd-3);
 
-  /* role colors */
-  --ngd-role-plant-director: var(--acc8-400);
-  --ngd-role-chief-engineer: var(--ngd-colors-acc4-400);
-  --ngd-role-operations-manager: var(--ngd-colors-acc3-400);
-  --ngd-role-safety-compliance-lead: var(--acc9-400);
-  --ngd-role-hr-manager: var(--ngd-colors-acc1-400);
-  --ngd-role-rd-specialist: var(--ngd-colors-acc4-300);
-  --ngd-role-engineering-intern: var(--ngd-colors-acc4-400);
-  --ngd-role-maintenance-technician: var(--acc9-300);
-  --ngd-role-qa-auditor: var(--ngd-colors-acc2-400);
-  --ngd-role-warehouse-operator: var(--acc9-400);
-  --ngd-role-safety-inspector: var(--acc9-400);
-  --ngd-role-procurement-specialist: var(--ngd-colors-acc1-400);
-  --ngd-role-shift-supervisor: var(--ngd-colors-acc4-400);
-  --ngd-role-process-engineer: var(--ngd-colors-acc4-400);
+  /* gender colors */
+  --ngd-gender-male: var(--ngd-colors-acc4-400);
+  --ngd-gender-female: var(--ngd-colors-acc5-400);
 }

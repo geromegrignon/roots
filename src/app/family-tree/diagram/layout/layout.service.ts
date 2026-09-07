@@ -1,12 +1,12 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
-import { ORG_CHART_CONFIG } from '../../org-chart.config';
+import { FAMILY_TREE_CONFIG } from '../../family-tree.config';
 import {
   NgDiagramModelService,
   type Edge as DiagramEdge,
   type Node as DiagramNode,
 } from 'ng-diagram';
 import { getSortOrder } from '../model/data-getters';
-import { type OrgChartNodeData } from '../model/interfaces';
+import { type FamilyTreeNodeData } from '../model/interfaces';
 import { ModelChanges } from '../model/model-changes';
 import { findRootNode, getFutureVisibleSet, getVisibleSet } from './visible-set';
 import { performLayout } from './perform-layout';
@@ -19,7 +19,7 @@ export interface VisibilityHint {
 }
 
 /**
- * Computes org-chart node positions and manages layout direction.
+ * Computes family-tree node positions and manages layout direction.
  *
  * Uses ELK.js (via `performLayout`) to position visible nodes in a tree
  * hierarchy. Reads accumulated `ModelChanges` to resolve the future
@@ -27,7 +27,7 @@ export interface VisibilityHint {
  */
 @Injectable()
 export class LayoutService {
-  private readonly config = inject(ORG_CHART_CONFIG);
+  private readonly config = inject(FAMILY_TREE_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
 
   private readonly _direction = signal<LayoutDirection>('DOWN');
@@ -60,7 +60,7 @@ export class LayoutService {
   private resolveVisibleSet(
     changes: ModelChanges,
     visibility?: VisibilityHint,
-  ): { nodes: DiagramNode<OrgChartNodeData>[]; edges: DiagramEdge[] } {
+  ): { nodes: DiagramNode<FamilyTreeNodeData>[]; edges: DiagramEdge[] } {
     const model = this.modelService.getModel();
     let { nodes, edges } = visibility
       ? getFutureVisibleSet(
@@ -95,10 +95,10 @@ export class LayoutService {
 
   /** Merges new nodes/edges and sorts everything by sort order (with pending overrides). */
   private sortByOrder(
-    visibleNodes: DiagramNode<OrgChartNodeData>[],
+    visibleNodes: DiagramNode<FamilyTreeNodeData>[],
     visibleEdges: DiagramEdge[],
     changes: ModelChanges,
-  ): { nodes: DiagramNode<OrgChartNodeData>[]; edges: DiagramEdge[] } {
+  ): { nodes: DiagramNode<FamilyTreeNodeData>[]; edges: DiagramEdge[] } {
     const orderOverrides = new Map<string, number>();
     for (const update of changes.nodeUpdates) {
       const order = getSortOrder(update);
@@ -110,7 +110,7 @@ export class LayoutService {
       orderOverrides.set(node.id, getSortOrder(node) ?? 0);
     }
 
-    const getOrder = (id: string, data: OrgChartNodeData) =>
+    const getOrder = (id: string, data: FamilyTreeNodeData) =>
       orderOverrides.get(id) ?? getSortOrder({ data }) ?? 0;
 
     const nodes = [...visibleNodes, ...changes.newNodes].sort(

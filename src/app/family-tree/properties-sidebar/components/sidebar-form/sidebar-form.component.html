@@ -1,35 +1,55 @@
 <div class="form-section">
-  <span class="h10 section-title">General Information</span>
+  <span class="h10 section-title">Person</span>
 
   <div class="section-content">
-    <app-form-field label="Full Name" fieldId="fullName">
+    <app-form-field label="First Name" fieldId="firstName">
       <input
-        id="fullName"
+        id="firstName"
         type="text"
         class="form-input p10"
-        [formField]="fieldTree.fullName"
+        [formField]="fieldTree.firstName"
         [appAutofocus]="nodeId()"
-        placeholder="Enter full name"
+        placeholder="Enter first name"
       />
     </app-form-field>
 
-    <app-form-field label="Role" fieldId="role">
+    <app-form-field label="Last Name" fieldId="lastName">
+      <input
+        id="lastName"
+        type="text"
+        class="form-input p10"
+        [formField]="fieldTree.lastName"
+        placeholder="Enter last name"
+      />
+    </app-form-field>
+
+    <app-form-field label="Gender" fieldId="gender">
       <app-combobox
-        triggerId="role"
-        [formField]="fieldTree.role"
-        [options]="roleOptions()"
-        placeholder="Select a role"
+        triggerId="gender"
+        [formField]="fieldTree.gender"
+        [options]="genderOptions()"
+        placeholder="Select a gender"
       />
     </app-form-field>
 
-    <app-form-field label="Description" fieldId="description">
-      <textarea
-        id="description"
-        class="form-input form-textarea p10"
-        [formField]="fieldTree.description"
-        placeholder="Enter description"
-        rows="3"
-      ></textarea>
+    <app-form-field label="Birth Year" fieldId="birthYear">
+      <input
+        id="birthYear"
+        type="number"
+        class="form-input p10"
+        [formField]="fieldTree.birthYear"
+        placeholder="e.g. 1970"
+      />
+    </app-form-field>
+
+    <app-form-field label="Death Year" fieldId="deathYear">
+      <input
+        id="deathYear"
+        type="number"
+        class="form-input p10"
+        [formField]="fieldTree.deathYear"
+        placeholder="e.g. 2020"
+      />
     </app-form-field>
   </div>
 </div>
@@ -37,14 +57,71 @@
 <div class="form-separator"></div>
 
 <div class="form-section">
-  <span class="h10 section-title">Organization Structure</span>
+  <span class="h10 section-title">Spouse</span>
 
   <div class="section-content">
-    <app-form-field label="Reports to" fieldId="reportsTo">
-      <app-reports-to-field
-        triggerId="reportsTo"
-        [candidateNodes]="reportsToCandidateNodes()"
-        [formField]="fieldTree.reportsTo"
+    <app-form-field label="Spouse First Name" fieldId="spouseFirstName">
+      <input
+        id="spouseFirstName"
+        type="text"
+        class="form-input p10"
+        [formField]="fieldTree.spouseFirstName"
+        placeholder="Enter spouse's first name"
+      />
+    </app-form-field>
+
+    <app-form-field label="Spouse Last Name" fieldId="spouseLastName">
+      <input
+        id="spouseLastName"
+        type="text"
+        class="form-input p10"
+        [formField]="fieldTree.spouseLastName"
+        placeholder="Enter spouse's last name"
+      />
+    </app-form-field>
+
+    <app-form-field label="Spouse Gender" fieldId="spouseGender">
+      <app-combobox
+        triggerId="spouseGender"
+        [formField]="fieldTree.spouseGender"
+        [options]="genderOptions()"
+        placeholder="Select a gender"
+      />
+    </app-form-field>
+
+    <app-form-field label="Spouse Birth Year" fieldId="spouseBirthYear">
+      <input
+        id="spouseBirthYear"
+        type="number"
+        class="form-input p10"
+        [formField]="fieldTree.spouseBirthYear"
+        placeholder="e.g. 1972"
+      />
+    </app-form-field>
+
+    <app-form-field label="Spouse Death Year" fieldId="spouseDeathYear">
+      <input
+        id="spouseDeathYear"
+        type="number"
+        class="form-input p10"
+        [formField]="fieldTree.spouseDeathYear"
+        placeholder="e.g. 2021"
+      />
+    </app-form-field>
+  </div>
+</div>
+
+<div class="form-separator"></div>
+
+<div class="form-section">
+  <span class="h10 section-title">Family Structure</span>
+
+  <div class="section-content">
+    <app-form-field label="Parent" fieldId="parentId">
+      <app-parent-field
+        triggerId="parentId"
+        [candidateNodes]="parentCandidateNodes()"
+        [formField]="fieldTree.parentId"
       />
     </app-form-field>
   </div>

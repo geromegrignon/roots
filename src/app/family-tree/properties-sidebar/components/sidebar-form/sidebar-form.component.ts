@@ -10,9 +10,9 @@ import {
 import { FormField } from '@angular/forms/signals';
 import { type Node } from 'ng-diagram';
 import {
-  type OrgChartNodeData,
-  type OrgChartOccupiedNodeData,
-  type OrgChartRole,
+  type FamilyTreeNodeData,
+  type FamilyTreeOccupiedNodeData,
+  type Gender,
 } from '../../../diagram/model/interfaces';
 import {
   ComboboxComponent,
@@ -20,7 +20,7 @@ import {
 } from '../../../shared/combobox/combobox.component';
 import { AutofocusDirective } from '../../../shared/autofocus/autofocus.directive';
 import { FormFieldComponent } from '../form-field/form-field.component';
-import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
+import { ParentFieldComponent } from '../parent-field/parent-field.component';
 import { nodeDataToFormData } from './sidebar-form.mappers';
 import { SidebarFormService } from './sidebar-form.service';
 
@@ -29,7 +29,7 @@ import { SidebarFormService } from './sidebar-form.service';
   imports: [
     FormField,
     FormFieldComponent,
-    ReportsToFieldComponent,
+    ParentFieldComponent,
     ComboboxComponent,
     AutofocusDirective,
   ],
@@ -41,10 +41,10 @@ export class SidebarFormComponent {
   private readonly formService = inject(SidebarFormService);
 
   readonly nodeId = input.required<string>();
-  readonly nodeData = input.required<OrgChartNodeData>();
+  readonly nodeData = input.required<FamilyTreeNodeData>();
   readonly nodeParentId = input.required<string | null>();
-  readonly reportsToCandidateNodes = input.required<Node<OrgChartOccupiedNodeData>[]>();
-  readonly roleOptions = input.required<ComboboxOption<OrgChartRole>[]>();
+  readonly parentCandidateNodes = input.required<Node<FamilyTreeOccupiedNodeData>[]>();
+  readonly genderOptions = input.required<ComboboxOption<Gender>[]>();
 
   protected readonly fieldTree = this.formService.fieldTree;
 

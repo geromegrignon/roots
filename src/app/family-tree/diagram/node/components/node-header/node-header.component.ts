@@ -11,9 +11,11 @@ import { InitialsAvatarComponent } from '../../../../shared/initials-avatar/init
 })
 export class NodeHeaderComponent {
   fullName = input<string>();
-  role = input<string>();
+  /** Secondary line under the name — this card's lifespan (e.g. "1970 – 2020"). */
+  subtitle = input<string>();
   color = input<string>();
   vacant = input(false);
+  avatarSize = input<'md' | 'xl'>('xl');
 
-  displayName = computed(() => (this.vacant() ? 'Vacant Position' : (this.fullName() ?? '')));
+  displayName = computed(() => (this.vacant() ? 'Unnamed Person' : (this.fullName() ?? '')));
 }

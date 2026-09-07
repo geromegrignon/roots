@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { getSortOrder } from './data-getters';
 import { SORT_ORDER } from './interfaces';
-import { isOrgChartNode } from './guards';
-import { type OrgChartNodeData } from './interfaces';
+import { isFamilyTreeNode } from './guards';
+import { type FamilyTreeNodeData } from './interfaces';
 import { ModelChanges } from './model-changes';
 
 /** Describes where to insert a node relative to a sibling. */
@@ -14,7 +14,7 @@ export interface ReorderChange {
 }
 
 /**
- * Manages sibling order within the org-chart tree via a `sortOrder`
+ * Manages sibling order within the family-tree tree via a `sortOrder`
  * property on each node. ELK uses this order when laying out children.
  */
 @Injectable()
@@ -32,7 +32,7 @@ export class SortOrderService {
       .getConnectedEdges(parentId)
       .filter((e) => e.source === parentId)
       .map((e) => {
-        const node = this.modelService.getNodeById<OrgChartNodeData>(e.target);
+        const node = this.modelService.getNodeById<FamilyTreeNodeData>(e.target);
         return {
           id: e.target,
           sortOrder: node ? (getSortOrder(node) ?? 0) : 0,
@@ -92,7 +92,7 @@ export class SortOrderService {
     const model = this.modelService.getModel();
     const nodes = model.getNodes();
 
-    const needsInit = nodes.some((n) => isOrgChartNode(n) && getSortOrder(n) === undefined);
+    const needsInit = nodes.some((n) => isFamilyTreeNode(n) && getSortOrder(n) === undefined);
     if (!needsInit) return modelChanges;
 
     const edges = model.getEdges();
@@ -107,7 +107,7 @@ export class SortOrderService {
     }
 
     for (const node of nodes) {
-      if (isOrgChartNode(node) && !targetIds.has(node.id)) {
+      if (isFamilyTreeNode(node) && !targetIds.has(node.id)) {
         modelChanges.addNodeUpdates({ id: node.id, data: { [SORT_ORDER]: 0 } });
       }
     }
@@ -163,11 +163,11 @@ export class SortOrderService {
   /** Returns model patches for nodes whose current `sortOrder` differs from their target index. */
   private buildSortOrderUpdates(
     nodeIds: string[],
-  ): { id: string; data: Partial<OrgChartNodeData> }[] {
-    const updates: { id: string; data: Partial<OrgChartNodeData> }[] = [];
+  ): { id: string; data: Partial<FamilyTreeNodeData> }[] {
+    const updates: { id: string; data: Partial<FamilyTreeNodeData> }[] = [];
 
     for (let i = 0; i < nodeIds.length; i++) {
-      const node = this.modelService.getNodeById<OrgChartNodeData>(nodeIds[i]);
+      const node = this.modelService.getNodeById<FamilyTreeNodeData>(nodeIds[i]);
       if (!node) continue;
       if ((getSortOrder(node) ?? 0) === i) continue;
       updates.push({ id: nodeIds[i], data: { [SORT_ORDER]: i } });

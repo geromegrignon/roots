@@ -7,11 +7,11 @@ import {
   type Node,
 } from 'ng-diagram';
 import { DragReorderService } from '../../drag-reorder/drag-reorder.service';
-import { ORG_CHART_CONFIG } from '../../org-chart.config';
+import { FAMILY_TREE_CONFIG } from '../../family-tree.config';
 import { LayoutService } from '../layout/layout.service';
 import { getHasChildren, getIsHidden } from '../model/data-getters';
 import { isOccupiedNodeData, isVacantNode } from '../model/guards';
-import { getColorForRole, type OrgChartNodeData } from '../model/interfaces';
+import { getColorForGender, type FamilyTreeNodeData } from '../model/interfaces';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
 import { DropIndicatorComponent } from './components/drop-indicator/drop-indicator.component';
@@ -22,12 +22,21 @@ import { VacantNodeComponent } from './components/vacant-node/vacant-node.compon
 type NodeVariant = 'vacant' | 'compact' | 'full';
 
 /**
- * Custom org-chart node template.
+ * Custom family-tree node template.
  *
- * Renders one of three visual variants depending on vacancy and zoom level:
- * - **vacant** – no `fullName` set; shows a placeholder card.
- * - **compact** – zoom < 100%; header only, no stats/capacity.
- * - **full** – zoom >= 100%; complete card with stats and capacity bar.
+ * Renders one of two visual variants depending on vacancy:
+ * - **vacant** – no `firstName` set; shows a placeholder card.
+ * - **occupied** ("compact" below `viewport.compactScaleThreshold`, "full"
+ *   at or above it) – complete card, always including a spouse section
+ *   below the primary person when one is set. Person data — including the
+ *   spouse — must stay visible at every zoom level, so the compact/full
+ *   split no longer hides any content; it's kept as a hook for future
+ *   zoom-driven styling (e.g. a denser layout at very low zoom).
+ *
+ * A node represents a "family unit" (one person, plus an optional spouse
+ * shown in the same card) rather than one person per node — the underlying
+ * diagram graph stays a plain single-parent tree, exactly like the
+ * org-chart template this was forked from.
  *
  * Delegates expand/collapse, drag indicators, and add-node buttons to child components.
  */
@@ -55,14 +64,14 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '(mouseleave)': 'isNodeHovered.set(false)',
   },
 })
-export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
-  private readonly config = inject(ORG_CHART_CONFIG);
+export class NodeComponent implements NgDiagramNodeTemplate<FamilyTreeNodeData> {
+  private readonly config = inject(FAMILY_TREE_CONFIG);
   private readonly layoutService = inject(LayoutService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly dragReorderService = inject(DragReorderService);
 
-  node = input.required<Node<OrgChartNodeData>>();
+  node = input.required<Node<FamilyTreeNodeData>>();
 
   protected isNodeHovered = signal(false);
 
@@ -76,7 +85,8 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
       ? 'compact'
       : 'full';
   });
-  protected color = computed(() => getColorForRole(this.node().data.role));
+  protected color = computed(() => getColorForGender(this.occupiedData()?.gender));
+  protected spouseColor = computed(() => getColorForGender(this.occupiedData()?.spouseGender));
   protected occupiedData = computed(() => {
     const data = this.node().data;
     if (!isOccupiedNodeData(data)) {

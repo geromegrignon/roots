@@ -1,13 +1,13 @@
 import { type Edge as DiagramEdge, type Node as DiagramNode } from 'ng-diagram';
-import { type OrgChartEdgeData, type OrgChartNodeData } from './interfaces';
+import { type FamilyTreeEdgeData, type FamilyTreeNodeData } from './interfaces';
 
-export type NodeUpdate = Omit<Partial<DiagramNode<OrgChartNodeData>>, 'data'> & {
+export type NodeUpdate = Omit<Partial<DiagramNode<FamilyTreeNodeData>>, 'data'> & {
   id: string;
-  data?: Partial<OrgChartNodeData>;
+  data?: Partial<FamilyTreeNodeData>;
 };
-export type EdgeUpdate = Omit<Partial<DiagramEdge<OrgChartEdgeData>>, 'data'> & {
+export type EdgeUpdate = Omit<Partial<DiagramEdge<FamilyTreeEdgeData>>, 'data'> & {
   id: string;
-  data?: Partial<OrgChartEdgeData>;
+  data?: Partial<FamilyTreeEdgeData>;
 };
 
 /**
@@ -17,8 +17,8 @@ export type EdgeUpdate = Omit<Partial<DiagramEdge<OrgChartEdgeData>>, 'data'> & 
 export class ModelChanges {
   readonly nodeUpdates: NodeUpdate[] = [];
   readonly edgeUpdates: EdgeUpdate[] = [];
-  readonly newNodes: DiagramNode<OrgChartNodeData>[] = [];
-  readonly newEdges: DiagramEdge<OrgChartEdgeData>[] = [];
+  readonly newNodes: DiagramNode<FamilyTreeNodeData>[] = [];
+  readonly newEdges: DiagramEdge<FamilyTreeEdgeData>[] = [];
   readonly deleteNodeIds: string[] = [];
   readonly deleteEdgeIds: string[] = [];
 
@@ -30,11 +30,11 @@ export class ModelChanges {
     this.edgeUpdates.push(...updates);
   }
 
-  addNewNodes(...nodes: DiagramNode<OrgChartNodeData>[]): void {
+  addNewNodes(...nodes: DiagramNode<FamilyTreeNodeData>[]): void {
     this.newNodes.push(...nodes);
   }
 
-  addNewEdges(...edges: DiagramEdge<OrgChartEdgeData>[]): void {
+  addNewEdges(...edges: DiagramEdge<FamilyTreeEdgeData>[]): void {
     this.newEdges.push(...edges);
   }
 

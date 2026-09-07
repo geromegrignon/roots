@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NodeHeaderComponent } from '../node-header/node-header.component';
 
 @Component({
@@ -8,6 +8,4 @@ import { NodeHeaderComponent } from '../node-header/node-header.component';
   styleUrls: ['./vacant-node.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VacantNodeComponent {
-  role = input<string>();
-}
+export class VacantNodeComponent {}

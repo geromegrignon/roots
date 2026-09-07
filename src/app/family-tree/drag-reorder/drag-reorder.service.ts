@@ -1,6 +1,6 @@
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
-import { ORG_CHART_CONFIG } from '../org-chart.config';
+import { FAMILY_TREE_CONFIG } from '../family-tree.config';
 import { DragService } from './drag.service';
 import { DropService } from './drop.service';
 import type { HighlightedIndicator } from './interfaces';
@@ -21,7 +21,7 @@ function setsEqual(a: Set<string>, b: Set<string>): boolean {
  */
 @Injectable()
 export class DragReorderService implements OnDestroy {
-  private readonly config = inject(ORG_CHART_CONFIG);
+  private readonly config = inject(FAMILY_TREE_CONFIG);
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly dragService = inject(DragService);

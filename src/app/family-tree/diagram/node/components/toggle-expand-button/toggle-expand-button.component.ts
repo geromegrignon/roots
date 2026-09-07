@@ -7,7 +7,7 @@ import {
   getIsCollapsed,
 } from '../../../model/data-getters';
 import { ExpandCollapseService } from '../../../model/expand-collapse.service';
-import type { OrgChartNodeData } from '../../../model/interfaces';
+import type { FamilyTreeNodeData } from '../../../model/interfaces';
 import { ModelApplyService } from '../../../model/model-apply.service';
 import { NodeVisibilityService } from '../../../node-visibility/node-visibility.service';
 
@@ -27,7 +27,7 @@ export class ToggleExpandButtonComponent {
   private readonly nodeVisibilityService = inject(NodeVisibilityService);
   private readonly layoutGate = inject(LayoutGate);
 
-  node = input.required<Node<OrgChartNodeData>>();
+  node = input.required<Node<FamilyTreeNodeData>>();
   isHorizontal = input(false);
 
   protected hasChildren = computed(() => getHasChildren(this.node()));

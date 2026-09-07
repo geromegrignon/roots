@@ -10,9 +10,9 @@ import {
   IS_COLLAPSED,
   NodeTemplateType,
   SORT_ORDER,
-  type OrgChartEdgeData,
-  type OrgChartNodeData,
-  type OrgChartVacantNodeData,
+  type FamilyTreeEdgeData,
+  type FamilyTreeNodeData,
+  type FamilyTreeVacantNodeData,
 } from './interfaces';
 import { ModelApplyService } from './model-apply.service';
 import { ModelChanges } from './model-changes';
@@ -40,7 +40,7 @@ export class AddNodeService {
     const { parentId, referenceNodeId, position } = this.resolveParams(nodeId, action);
     if (!parentId) return undefined;
 
-    const parentNode = this.modelService.getNodeById<OrgChartNodeData>(parentId);
+    const parentNode = this.modelService.getNodeById<FamilyTreeNodeData>(parentId);
     if (!parentNode) return undefined;
 
     const needsExpand = action === 'child' && !!getIsCollapsed(parentNode);
@@ -90,7 +90,7 @@ export class AddNodeService {
    * @returns The set of subtree IDs affected by the expand, or `undefined` if no expand was needed.
    */
   private updateParentNode(
-    parentNode: Node<OrgChartNodeData>,
+    parentNode: Node<FamilyTreeNodeData>,
     needsExpand: boolean,
     changes: ModelChanges,
   ): Set<string> | undefined {
@@ -115,17 +115,13 @@ export class AddNodeService {
   }
 
   /** Creates a new vacant node with the given sort order. */
-  private createVacantNode(id: string, sortOrder: number): Node<OrgChartVacantNodeData> {
+  private createVacantNode(id: string, sortOrder: number): Node<FamilyTreeVacantNodeData> {
     return {
       id,
-      type: NodeTemplateType.OrgChartNode,
+      type: NodeTemplateType.FamilyTreeNode,
       position: { x: 0, y: 0 },
       data: {
         type: 'vacant',
-        role: undefined,
-        reports: Math.floor(Math.random() * 11),
-        headcount: Math.floor(Math.random() * 2001),
-        utilization: Math.floor(Math.random() * 101),
         [SORT_ORDER]: sortOrder,
         [IS_COLLAPSED]: false,
         [HAS_CHILDREN]: false,
@@ -133,16 +129,16 @@ export class AddNodeService {
     };
   }
 
-  /** Creates an org-chart edge connecting a parent to a child node. */
-  private createEdge(parentId: string, childId: string): Edge<OrgChartEdgeData> {
+  /** Creates a family-tree edge connecting a parent to a child node. */
+  private createEdge(parentId: string, childId: string): Edge<FamilyTreeEdgeData> {
     return {
       id: crypto.randomUUID(),
       source: parentId,
       sourcePort: 'port-out',
       target: childId,
       targetPort: 'port-in',
-      type: EdgeTemplateType.OrgChartEdge,
-      data: { type: 'orgChart' },
+      type: EdgeTemplateType.FamilyTreeEdge,
+      data: { type: 'familyTree' },
     };
   }
 }

@@ -4,6 +4,6 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./org-chart/pages/org-chart-page.component').then((m) => m.OrgChartPageComponent),
+      import('./family-tree/pages/family-tree-page.component').then((m) => m.FamilyTreePageComponent),
   },
 ];

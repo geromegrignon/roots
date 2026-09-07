@@ -7,10 +7,10 @@ import {
 } from 'ng-diagram';
 import { getIsHidden } from './model/data-getters';
 import { isVacantNode } from './model/guards';
-import { type OrgChartEdgeData } from './model/interfaces';
+import { type FamilyTreeEdgeData } from './model/interfaces';
 
 /**
- * Custom org-chart edge template.
+ * Custom family-tree edge template.
  *
  * Delegates all rendering to the built-in base edge component.
  * Edges whose source or target node is inside a collapsed subtree
@@ -29,10 +29,10 @@ import { type OrgChartEdgeData } from './model/interfaces';
     '[style.visibility]': 'isHidden() ? "hidden" : null',
   },
 })
-export class EdgeComponent implements NgDiagramEdgeTemplate<OrgChartEdgeData> {
+export class EdgeComponent implements NgDiagramEdgeTemplate<FamilyTreeEdgeData> {
   private readonly modelService = inject(NgDiagramModelService);
 
-  edge = input.required<Edge<OrgChartEdgeData>>();
+  edge = input.required<Edge<FamilyTreeEdgeData>>();
 
   isHidden = computed(() => getIsHidden(this.edge()));
 

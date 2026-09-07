@@ -8,8 +8,8 @@
           [nodeId]="node.id"
           [nodeData]="node.data"
           [nodeParentId]="selectedNodeParentId()"
-          [reportsToCandidateNodes]="reportsToCandidateNodes()"
-          [roleOptions]="roleOptions"
+          [parentCandidateNodes]="parentCandidateNodes()"
+          [genderOptions]="genderOptions"
         />
         <div class="sidebar-actions">
           <button class="remove-button p10" type="button" (click)="onRemoveNode()">
@@ -19,7 +19,7 @@
       } @else if (state() === 'empty') {
         <app-sidebar-placeholder
           title="No selection"
-          description="Select an employee card on the canvas to view their details."
+          description="Select a person's card on the canvas to view their details."
         />
       } @else {
         <app-sidebar-placeholder

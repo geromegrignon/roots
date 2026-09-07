@@ -14,7 +14,7 @@ import {
   Node,
 } from 'ng-diagram';
 import { getIsHidden } from '../diagram/model/data-getters';
-import { ORG_CHART_CONFIG } from '../org-chart.config';
+import { FAMILY_TREE_CONFIG } from '../family-tree.config';
 
 @Component({
   selector: 'app-minimap-panel',
@@ -24,7 +24,7 @@ import { ORG_CHART_CONFIG } from '../org-chart.config';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MinimapPanelComponent {
-  private readonly config = inject(ORG_CHART_CONFIG);
+  private readonly config = inject(FAMILY_TREE_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
 

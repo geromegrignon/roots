@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { LayoutGate } from '../diagram/layout/layout-gate';
-import { type OrgChartNodeData } from '../diagram/model/interfaces';
+import { type FamilyTreeNodeData } from '../diagram/model/interfaces';
 import { HierarchyService } from '../diagram/model/hierarchy.service';
 import { ModelApplyService } from '../diagram/model/model-apply.service';
 import { ModelChanges } from '../diagram/model/model-changes';
@@ -39,9 +39,9 @@ export class NodeMutationService {
     await this.modelApplyService.applyWithLayout(changes);
   }
 
-  /** Processes form field changes: updates node data and/or update parent if "reportsTo" changed. */
+  /** Processes form field changes: updates node data and/or update parent if "parentId" changed. */
   handleFieldChange(change: SidebarFieldChange): void {
-    const node = this.modelService.getNodeById<OrgChartNodeData>(change.nodeId);
+    const node = this.modelService.getNodeById<FamilyTreeNodeData>(change.nodeId);
     if (!node) return;
 
     if (this.hasNodeDataChanges(change)) {
@@ -50,7 +50,7 @@ export class NodeMutationService {
     }
 
     if (this.hasHierarchicalChanges(change) && this.layoutGate.isIdle()) {
-      this.updateNodeParent(change.nodeId, change.formData.reportsTo);
+      this.updateNodeParent(change.nodeId, change.formData.parentId);
     }
   }
 
@@ -62,10 +62,10 @@ export class NodeMutationService {
 
   private hasHierarchicalChanges(change: SidebarFieldChange): boolean {
     const currentParentId = this.hierarchyService.getParentId(change.nodeId);
-    return change.fields.includes('reportsTo') && change.formData.reportsTo !== currentParentId;
+    return change.fields.includes('parentId') && change.formData.parentId !== currentParentId;
   }
 
   private hasNodeDataChanges(change: SidebarFieldChange): boolean {
-    return change.fields.some((f) => f !== 'reportsTo');
+    return change.fields.some((f) => f !== 'parentId');
   }
 }

@@ -8,7 +8,7 @@ import {
   type FamilyTreeNodeData,
   type FamilyTreeOccupiedNodeData,
 } from '../diagram/model/interfaces';
-import { type ComboboxOption } from '../shared/combobox/combobox.component';
+import { type SelectOption } from '../shared/select-option/select-option';
 
 /**
  * Manages sidebar visibility state and exposes selection-derived data
@@ -41,7 +41,7 @@ export class PropertiesSidebarService {
       );
   });
 
-  readonly genderOptions: ComboboxOption<Gender>[] = Object.values(Gender).map((gender) => ({
+  readonly genderOptions: SelectOption<Gender>[] = Object.values(Gender).map((gender) => ({
     value: gender,
     label: GENDER_LABELS[gender],
   }));

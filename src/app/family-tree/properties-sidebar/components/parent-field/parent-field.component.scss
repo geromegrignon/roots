@@ -1,13 +1,12 @@
+.parent-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ngd-token-spacing-dropdown-wrap-s-gap);
+  overflow: hidden;
+}
+
 .option-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  &.placeholder {
-    color: var(--ngd-txt-secondary-default);
-  }
-}
-
-app-combobox {
-  --combobox-trigger-padding: var(--ngd-primitive-even-6); /* No Figma token */
 }

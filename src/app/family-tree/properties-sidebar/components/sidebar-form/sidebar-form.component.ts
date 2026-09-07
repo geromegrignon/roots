@@ -9,15 +9,15 @@ import {
 } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { type Node } from 'ng-diagram';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
 import {
   type FamilyTreeNodeData,
   type FamilyTreeOccupiedNodeData,
   type Gender,
 } from '../../../diagram/model/interfaces';
-import {
-  ComboboxComponent,
-  type ComboboxOption,
-} from '../../../shared/combobox/combobox.component';
+import { type SelectOption } from '../../../shared/select-option/select-option';
 import { AutofocusDirective } from '../../../shared/autofocus/autofocus.directive';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { ParentFieldComponent } from '../parent-field/parent-field.component';
@@ -30,7 +30,9 @@ import { SidebarFormService } from './sidebar-form.service';
     FormField,
     FormFieldComponent,
     ParentFieldComponent,
-    ComboboxComponent,
+    InputText,
+    InputNumber,
+    Select,
     AutofocusDirective,
   ],
   templateUrl: './sidebar-form.component.html',
@@ -44,7 +46,7 @@ export class SidebarFormComponent {
   readonly nodeData = input.required<FamilyTreeNodeData>();
   readonly nodeParentId = input.required<string | null>();
   readonly parentCandidateNodes = input.required<Node<FamilyTreeOccupiedNodeData>[]>();
-  readonly genderOptions = input.required<ComboboxOption<Gender>[]>();
+  readonly genderOptions = input.required<SelectOption<Gender>[]>();
 
   protected readonly fieldTree = this.formService.fieldTree;
 

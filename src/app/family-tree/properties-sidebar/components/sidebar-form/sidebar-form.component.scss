@@ -24,35 +24,3 @@
   height: var(--ngd-primitive-odd-1); /* No Figma token */
   background: var(--ngd-ui-separator-primary-default);
 }
-
-.form-input {
-  width: 100%;
-  padding: var(--ngd-token-spacing-input-m-v-pad) var(--ngd-token-spacing-input-m-h-pad); /* No Figma token - wrong tokens */
-  border: var(--ngd-primitive-odd-1) solid var(--ngd-input-stroke-primary-default); /* No Figma token - border width */
-  border-radius: var(--ngd-token-radius-input-m);
-  background: var(--ngd-ui-bg-primary-default);
-  color: var(--ngd-txt-primary-default);
-  outline: none;
-  transition: border-color 150ms ease;
-  box-sizing: border-box;
-
-  &::placeholder {
-    color: var(--ngd-txt-tertiary-default);
-  }
-
-  &:focus {
-    border-color: var(--ngd-input-stroke-primary-focus);
-  }
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 120px; /* No Figma token */
-  font-family: inherit;
-}
-
-app-combobox {
-  --combobox-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
-    var(--ngd-token-spacing-input-m-h-pad);
-  --combobox-input-padding: 0;
-}

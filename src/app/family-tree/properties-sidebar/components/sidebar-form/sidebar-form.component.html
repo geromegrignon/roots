@@ -5,8 +5,10 @@
     <app-form-field label="First Name" fieldId="firstName">
       <input
         id="firstName"
+        pInputText
+        fluid
         type="text"
-        class="form-input p10"
+        class="p10"
         [formField]="fieldTree.firstName"
         [appAutofocus]="nodeId()"
         placeholder="Enter first name"
@@ -16,38 +18,44 @@
     <app-form-field label="Last Name" fieldId="lastName">
       <input
         id="lastName"
+        pInputText
+        fluid
         type="text"
-        class="form-input p10"
+        class="p10"
         [formField]="fieldTree.lastName"
         placeholder="Enter last name"
       />
     </app-form-field>
 
     <app-form-field label="Gender" fieldId="gender">
-      <app-combobox
-        triggerId="gender"
-        [formField]="fieldTree.gender"
+      <p-select
+        inputId="gender"
+        [formField]="$any(fieldTree.gender)"
         [options]="genderOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [fluid]="true"
         placeholder="Select a gender"
       />
     </app-form-field>
 
     <app-form-field label="Birth Year" fieldId="birthYear">
-      <input
-        id="birthYear"
-        type="number"
-        class="form-input p10"
-        [formField]="fieldTree.birthYear"
+      <p-inputnumber
+        inputId="birthYear"
+        [formField]="$any(fieldTree.birthYear)"
+        [useGrouping]="false"
+        [fluid]="true"
         placeholder="e.g. 1970"
       />
     </app-form-field>
 
     <app-form-field label="Death Year" fieldId="deathYear">
-      <input
-        id="deathYear"
-        type="number"
-        class="form-input p10"
-        [formField]="fieldTree.deathYear"
+      <p-inputnumber
+        inputId="deathYear"
+        [formField]="$any(fieldTree.deathYear)"
+        [useGrouping]="false"
+        [fluid]="true"
         placeholder="e.g. 2020"
       />
     </app-form-field>
@@ -63,8 +71,10 @@
     <app-form-field label="Spouse First Name" fieldId="spouseFirstName">
       <input
         id="spouseFirstName"
+        pInputText
+        fluid
         type="text"
-        class="form-input p10"
+        class="p10"
         [formField]="fieldTree.spouseFirstName"
         placeholder="Enter spouse's first name"
       />
@@ -73,38 +83,44 @@
     <app-form-field label="Spouse Last Name" fieldId="spouseLastName">
       <input
         id="spouseLastName"
+        pInputText
+        fluid
         type="text"
-        class="form-input p10"
+        class="p10"
         [formField]="fieldTree.spouseLastName"
         placeholder="Enter spouse's last name"
       />
     </app-form-field>
 
     <app-form-field label="Spouse Gender" fieldId="spouseGender">
-      <app-combobox
-        triggerId="spouseGender"
-        [formField]="fieldTree.spouseGender"
+      <p-select
+        inputId="spouseGender"
+        [formField]="$any(fieldTree.spouseGender)"
         [options]="genderOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [fluid]="true"
         placeholder="Select a gender"
       />
     </app-form-field>
 
     <app-form-field label="Spouse Birth Year" fieldId="spouseBirthYear">
-      <input
-        id="spouseBirthYear"
-        type="number"
-        class="form-input p10"
-        [formField]="fieldTree.spouseBirthYear"
+      <p-inputnumber
+        inputId="spouseBirthYear"
+        [formField]="$any(fieldTree.spouseBirthYear)"
+        [useGrouping]="false"
+        [fluid]="true"
         placeholder="e.g. 1972"
       />
     </app-form-field>
 
     <app-form-field label="Spouse Death Year" fieldId="spouseDeathYear">
-      <input
-        id="spouseDeathYear"
-        type="number"
-        class="form-input p10"
-        [formField]="fieldTree.spouseDeathYear"
+      <p-inputnumber
+        inputId="spouseDeathYear"
+        [formField]="$any(fieldTree.spouseDeathYear)"
+        [useGrouping]="false"
+        [fluid]="true"
         placeholder="e.g. 2021"
       />
     </app-form-field>

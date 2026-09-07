@@ -1,31 +1,20 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { type FormValueControl } from '@angular/forms/signals';
 import { type Node } from 'ng-diagram';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Select } from '@openng/optimus-ui/select';
 import {
   formatFullName,
   getColorForGender,
   type FamilyTreeOccupiedNodeData,
 } from '../../../diagram/model/interfaces';
-import {
-  ComboboxNullOptionDef,
-  ComboboxOptionDef,
-  ComboboxPrefixDef,
-} from '../../../shared/combobox/combobox-option.directive';
-import {
-  ComboboxComponent,
-  type ComboboxOption,
-} from '../../../shared/combobox/combobox.component';
+import { type SelectOption } from '../../../shared/select-option/select-option';
 import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
 
 @Component({
   selector: 'app-parent-field',
-  imports: [
-    ComboboxComponent,
-    ComboboxOptionDef,
-    ComboboxNullOptionDef,
-    ComboboxPrefixDef,
-    InitialsAvatarComponent,
-  ],
+  imports: [FormsModule, Select, PrimeTemplate, InitialsAvatarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './parent-field.component.html',
   styleUrl: './parent-field.component.scss',
@@ -36,13 +25,17 @@ export class ParentFieldComponent implements FormValueControl<string | null> {
 
   readonly value = model<string | null>(null);
 
-  protected readonly candidates = computed<ComboboxOption<string>[]>(() =>
+  protected readonly candidates = computed<SelectOption<string>[]>(() =>
     this.candidateNodes()
       .map(this.mapNodeToOption)
       .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
-  private mapNodeToOption = (node: Node<FamilyTreeOccupiedNodeData>): ComboboxOption<string> => ({
+  protected onValueChange(value: string | null): void {
+    this.value.set(value);
+  }
+
+  private mapNodeToOption = (node: Node<FamilyTreeOccupiedNodeData>): SelectOption<string> => ({
     value: node.id,
     label: formatFullName(node.data.firstName, node.data.lastName),
     data: { color: getColorForGender(node.data.gender) },

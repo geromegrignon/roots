@@ -1,18 +1,26 @@
-<app-combobox
-  [(value)]="value"
+<p-select
+  [ngModel]="value()"
+  (ngModelChange)="onValueChange($event)"
+  [inputId]="triggerId()"
   [options]="candidates()"
-  [triggerId]="triggerId()"
+  optionLabel="label"
+  optionValue="value"
+  [filter]="true"
+  filterBy="label"
+  [showClear]="true"
+  [fluid]="true"
   placeholder="None"
 >
-  <ng-template appComboboxPrefix let-option>
-    <app-initials-avatar [fullName]="option?.label" [color]="option?.data?.color" size="md" />
+  <ng-template pTemplate="selectedItem" let-option>
+    <div class="parent-option">
+      <app-initials-avatar [fullName]="option?.label" [color]="option?.data?.color" size="md" />
+      <span class="option-label">{{ option?.label }}</span>
+    </div>
   </ng-template>
-  <ng-template appComboboxNullOption>
-    <app-initials-avatar size="md" />
-    <span class="option-label placeholder">None</span>
+  <ng-template pTemplate="item" let-option>
+    <div class="parent-option">
+      <app-initials-avatar [fullName]="option.label" [color]="option.data.color" size="md" />
+      <span class="option-label">{{ option.label }}</span>
+    </div>
   </ng-template>
-  <ng-template appComboboxOption let-option>
-    <app-initials-avatar [fullName]="option.label" [color]="option.data.color" size="md" />
-    <span class="option-label">{{ option.label }}</span>
-  </ng-template>
-</app-combobox>
+</p-select>

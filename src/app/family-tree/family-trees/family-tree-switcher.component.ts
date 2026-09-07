@@ -1,12 +1,7 @@
-import {
-  afterRenderEffect,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Select } from '@openng/optimus-ui/select';
+import { type SelectOption } from '../shared/select-option/select-option';
 import { AddFamilyTreeModalComponent } from './add-family-tree-modal.component';
 import { ADD_NEW_FAMILY_TREE_VALUE, FamilyTreeStoreService } from './family-tree-store.service';
 
@@ -16,7 +11,7 @@ import { ADD_NEW_FAMILY_TREE_VALUE, FamilyTreeStoreService } from './family-tree
  */
 @Component({
   selector: 'app-family-tree-switcher',
-  imports: [AddFamilyTreeModalComponent],
+  imports: [AddFamilyTreeModalComponent, FormsModule, Select],
   templateUrl: './family-tree-switcher.component.html',
   styleUrl: './family-tree-switcher.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,38 +20,22 @@ import { ADD_NEW_FAMILY_TREE_VALUE, FamilyTreeStoreService } from './family-tree
 export class FamilyTreeSwitcherComponent {
   protected readonly store = inject(FamilyTreeStoreService);
 
-  protected readonly ADD_NEW_FAMILY_TREE_VALUE = ADD_NEW_FAMILY_TREE_VALUE;
   protected readonly isAddModalOpen = signal(false);
 
-  private readonly treeSelect = viewChild<ElementRef<HTMLSelectElement>>('treeSelect');
-
-  constructor() {
-    // The `[value]` binding on the <select> can't select an <option> that isn't in the DOM
-    // yet. Creating a tree adds its <option> (via the @for block) and changes activeTreeId in
-    // the very same change-detection pass, but the select's own [value] binding is applied
-    // before @for patches in the new <option> — so the browser has nothing to select yet and
-    // silently keeps showing the previously-active tree. Re-apply the value imperatively once
-    // rendering has settled (afterRenderEffect runs post-render, same pattern as
-    // AutofocusDirective) so the select always reflects the active tree, including one just
-    // created.
-    afterRenderEffect(() => {
-      const activeId = this.store.activeTreeId();
-      const select = this.treeSelect()?.nativeElement;
-      if (select) select.value = activeId;
-    });
-  }
+  /** Family trees plus a trailing sentinel option that opens the "add new" modal. */
+  protected readonly treeOptions = computed<SelectOption<string>[]>(() => [
+    ...this.store.trees().map((tree) => ({ value: tree.id, label: tree.name })),
+    { value: ADD_NEW_FAMILY_TREE_VALUE, label: '+ Add new family tree…' },
+  ]);
 
   /**
-   * Handles a select change. Picking the "add new" option opens the modal
-   * instead of switching trees, and reverts the select's visible value back
-   * to the active tree (the browser has already moved the native selection
-   * to that option by the time `change` fires).
+   * Handles a selection change. Picking the "add new" option opens the modal
+   * instead of switching trees; since the select's value is bound one-way to
+   * `activeTreeId`, not propagating the sentinel leaves it showing the still-
+   * active tree once change detection re-renders.
    */
-  protected onChange(event: Event, selectEl: HTMLSelectElement): void {
-    const value = (event.target as HTMLSelectElement).value;
-
+  protected onChange(value: string): void {
     if (value === ADD_NEW_FAMILY_TREE_VALUE) {
-      selectEl.value = this.store.activeTreeId();
       this.isAddModalOpen.set(true);
       return;
     }

@@ -2,11 +2,13 @@ import { type Edge, type Node } from 'ng-diagram';
 import { Gender, type FamilyTreeEdgeData, type FamilyTreeNodeData } from './model/interfaces';
 
 /**
- * Seed data: descendants of François Joachim GRIGNON, transcribed from a
- * hand-drawn genealogy chart. A few simplifications were necessary because
- * this app's node model allows one recorded spouse per person:
+ * Seed data: ancestors and descendants of François Joachim GRIGNON,
+ * transcribed from two hand-drawn genealogy charts. A few simplifications
+ * were necessary because this app's node model is a strict single-parent
+ * tree (one node per couple, one incoming edge - see the doc comment on
+ * `FamilyTreeNodeData` in `model/interfaces.ts`):
  *
- * - Where the source chart showed two successive marriages for one person,
+ * - Where a source chart showed two successive marriages for one person,
  *   only the marriage with descendants shown under it is recorded as the
  *   node's spouse; any children from the other marriage are still attached
  *   as that person's children (a node's children hang off the person, not
@@ -14,13 +16,29 @@ import { Gender, type FamilyTreeEdgeData, type FamilyTreeNodeData } from './mode
  * - François Joachim GRIGNON's first marriage (&1825, to Françoise Jeanne
  *   CÉLO, no descendants shown) isn't represented — only the second
  *   marriage (&1829, to Sainte Marguerite PERROIS), from which the rest of
- *   the chart descends.
- * - Where the chart gave only an initial for a name, gender is left
+ *   the descendants chart descends.
+ * - Where a chart gave only an initial for a name, gender is left
  *   unset (it only drives avatar color) rather than guessed.
+ * - The ancestors chart (added 2026-09-07) is a full both-parents
+ *   ("ahnentafel") chart, but only François Joachim GRIGNON's direct
+ *   patrilineal line is represented here (Joseph GRIGNON ca.1665 -> Julien
+ *   GRIGNON 1703 -> Joseph GRIGNON 1733 -> Pierre GRIGNON 1764 -> François
+ *   Joachim), since this model can only ever record one incoming edge per
+ *   node. Each of those men's wives is still recorded as the node's spouse
+ *   (as for every other couple in this file), but the wives' OWN parents
+ *   are not - the chart also showed: Marie LABBÉ's parents (René LABBÉ
+ *   †1702 & Julienne JAMEU 1678-), Françoise GUEROIS's parents (André
+ *   GUEROIS 1700- & Françoise AUDIGER 1711-1788, herself daughter of Michel
+ *   AUDIGER 1664-1733 & Françoise JAUNAY 1669-), Thérèse GUILLOIS's parents
+ *   (Jean GUILLOIS & Thérèse LEGEARD, no years shown), and the entire
+ *   maternal side - the ancestors of Sainte Marguerite PERROIS (François
+ *   Joachim's wife) back through René PERROIS 1766-1834 and the DESPRÉS/
+ *   GILLOT family to Pierre DESPRÉS ca.1649-1704. None of that is
+ *   represented in this seed data.
  *
- * The bottom-most generation (the smallest print on the source chart) was
- * the hardest to read with full confidence — worth double-checking against
- * the original chart.
+ * The bottom-most generation of the descendants chart (the smallest print
+ * on the source) was the hardest to read with full confidence — worth
+ * double-checking against the original chart.
  */
 interface PersonSpec {
   key: string;
@@ -38,10 +56,67 @@ interface PersonSpec {
 }
 
 const PEOPLE: PersonSpec[] = [
+  // --- Direct ancestors of François Joachim GRIGNON (added 2026-09-07) ---
+  // Wives' own parents and the entire maternal (PERROIS/DESPRÉS) side are not
+  // represented here - see the file-level doc comment above.
+  {
+    key: 'joseph-grignon-1665',
+    parentKey: null,
+    firstName: 'Joseph',
+    lastName: 'GRIGNON',
+    gender: Gender.Male,
+    birthYear: 1665, // Chart says "ca 1665" (approximate).
+    deathYear: 1725,
+    spouseFirstName: 'Françoise',
+    spouseLastName: 'RAMBERT',
+    spouseGender: Gender.Female,
+    spouseBirthYear: 1674,
+  },
+  {
+    key: 'julien-grignon-1703',
+    parentKey: 'joseph-grignon-1665',
+    firstName: 'Julien',
+    lastName: 'GRIGNON',
+    gender: Gender.Male,
+    birthYear: 1703,
+    deathYear: 1758,
+    spouseFirstName: 'Marie',
+    spouseLastName: 'LABBÉ',
+    spouseGender: Gender.Female,
+    spouseBirthYear: 1700,
+    spouseDeathYear: 1771,
+  },
+  {
+    key: 'joseph-grignon-1733',
+    parentKey: 'julien-grignon-1703',
+    firstName: 'Joseph',
+    lastName: 'GRIGNON',
+    gender: Gender.Male,
+    birthYear: 1733,
+    spouseFirstName: 'Françoise',
+    spouseLastName: 'GUEROIS',
+    spouseGender: Gender.Female,
+    spouseBirthYear: 1733,
+  },
+  {
+    key: 'pierre-grignon-1764',
+    parentKey: 'joseph-grignon-1733',
+    firstName: 'Pierre',
+    lastName: 'GRIGNON',
+    gender: Gender.Male,
+    birthYear: 1764,
+    deathYear: 1842,
+    spouseFirstName: 'Thérèse',
+    spouseLastName: 'GUILLOIS',
+    spouseGender: Gender.Female,
+    spouseBirthYear: 1768,
+    spouseDeathYear: 1831,
+  },
+  // --- Descendants of François Joachim GRIGNON, original seed data ---
   // Generation 1
   {
     key: 'francois-joachim',
-    parentKey: null,
+    parentKey: 'pierre-grignon-1764',
     firstName: 'François Joachim',
     lastName: 'GRIGNON',
     gender: Gender.Male,

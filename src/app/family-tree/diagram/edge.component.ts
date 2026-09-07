@@ -36,8 +36,14 @@ export class EdgeComponent implements NgDiagramEdgeTemplate<FamilyTreeEdgeData> 
 
   isHidden = computed(() => getIsHidden(this.edge()));
 
+  // Reads from the `nodes()` signal (not the imperative `getNodeById`) so this recomputes
+  // when the target node's data changes - e.g. when a vacant placeholder is filled in via
+  // the sidebar form and becomes 'occupied'. `getNodeById` is a plain Map lookup with no
+  // reactive dependency, so using it here would leave the edge dashed forever once a node
+  // stops being vacant.
   isVacant = computed(() => {
-    const targetNode = this.modelService.getNodeById(this.edge().target);
+    const targetId = this.edge().target;
+    const targetNode = this.modelService.nodes().find((node) => node.id === targetId);
     return isVacantNode(targetNode);
   });
 }

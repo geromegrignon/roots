@@ -74,7 +74,6 @@ export class DiagramComponent {
         type: EdgeTemplateType.FamilyTreeEdge,
       }),
     },
-    watermarkPosition: 'bottom-left',
     zIndex: {
       elevateOnSelection: false,
     },

@@ -10,6 +10,14 @@
   border: 1px solid var(--ngd-ui-stroke-primary-default);
   border-radius: var(--ngd-token-radius-element-16);
   padding: var(--ngd-token-spacing-top-navbar-v-pad) var(--ngd-token-spacing-top-navbar-h-pad);
+
+  h1 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 140%;
+    color: var(--ngd-txt-primary-default);
+  }
 }
 
 .left-wrap {

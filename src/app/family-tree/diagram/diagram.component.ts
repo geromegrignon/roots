@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, Injector } from '@angular/core';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -16,8 +16,8 @@ import { DragReorderService } from '../drag-reorder/drag-reorder.service';
 import { DragService } from '../drag-reorder/drag.service';
 import { DropService } from '../drag-reorder/drop.service';
 import { FAMILY_TREE_CONFIG } from '../family-tree.config';
+import { FamilyTreeStoreService } from '../family-trees/family-tree-store.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
-import { diagramModel } from './data';
 import { EdgeComponent } from './edge.component';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
@@ -49,6 +49,8 @@ import { NodeComponent } from './node/node.component';
 })
 export class DiagramComponent {
   private readonly familyTreeConfig = inject(FAMILY_TREE_CONFIG);
+  private readonly familyTreeStore = inject(FamilyTreeStoreService);
+  private readonly injector = inject(Injector);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
@@ -83,11 +85,20 @@ export class DiagramComponent {
     nodeDraggingEnabled: false,
   } satisfies NgDiagramConfig;
 
-  nodeTemplateMap = new NgDiagramNodeTemplateMap([[NodeTemplateType.FamilyTreeNode, NodeComponent]]);
+  nodeTemplateMap = new NgDiagramNodeTemplateMap([
+    [NodeTemplateType.FamilyTreeNode, NodeComponent],
+  ]);
 
-  edgeTemplateMap = new NgDiagramEdgeTemplateMap([[EdgeTemplateType.FamilyTreeEdge, EdgeComponent]]);
+  edgeTemplateMap = new NgDiagramEdgeTemplateMap([
+    [EdgeTemplateType.FamilyTreeEdge, EdgeComponent],
+  ]);
 
-  model = initializeModel(diagramModel);
+  /**
+   * Recreated whenever the active family tree changes, seeding the diagram
+   * from that tree's saved data (see FamilyTreeStoreService). Safe to use in a
+   * reactive context per ng-diagram's initializeModel docs (since v1.2.0).
+   */
+  model = computed(() => initializeModel(this.familyTreeStore.loadActiveTreeData(), this.injector));
 
   async changeDirection(value: LayoutDirection): Promise<void> {
     if (this.direction() === value) {

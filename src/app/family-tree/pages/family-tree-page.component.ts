@@ -14,6 +14,7 @@ import { NodeVisibilityService } from '../diagram/node-visibility/node-visibilit
 import { ViewportBoundsDirective } from '../diagram/node-visibility/viewport-bounds.directive';
 import { ViewportOverlayDirective } from '../diagram/node-visibility/viewport-overlay.directive';
 import { AddButtonService } from '../diagram/node/components/add-button/add-button.service';
+import { FamilyTreeStoreService } from '../family-trees/family-tree-store.service';
 import { MinimapPanelComponent } from '../minimap-panel/minimap-panel.component';
 import { NodeMutationService } from '../properties-sidebar/node-mutation.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
@@ -53,6 +54,7 @@ import { registerPeopleWebMcpTools } from '../webmcp/people-mcp-tools';
     LayoutAnimationService,
     NodeVisibilityService,
     NodeVisibilityConfigService,
+    FamilyTreeStoreService,
   ],
 })
 export class FamilyTreePageComponent {

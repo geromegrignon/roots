@@ -1,6 +1,6 @@
 <div class="diagram" [class.initialized]="isLayoutInitialized()">
   <ng-diagram
-    [model]="model"
+    [model]="model()"
     [config]="config"
     [nodeTemplateMap]="nodeTemplateMap"
     [edgeTemplateMap]="edgeTemplateMap"

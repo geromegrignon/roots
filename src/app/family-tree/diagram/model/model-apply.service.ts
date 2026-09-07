@@ -1,6 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
 import { FAMILY_TREE_CONFIG } from '../../family-tree.config';
+import {
+  type FamilyTreeData,
+  FamilyTreeStoreService,
+} from '../../family-trees/family-tree-store.service';
 import { LayoutAnimationService } from '../animation/layout-animation.service';
 import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService, type VisibilityHint } from '../layout/layout.service';
@@ -22,6 +26,7 @@ export class ModelApplyService {
   private readonly config = inject(FAMILY_TREE_CONFIG);
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
+  private readonly familyTreeStore = inject(FamilyTreeStoreService);
   private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
   private readonly animationService = inject(LayoutAnimationService);
@@ -48,6 +53,15 @@ export class ModelApplyService {
 
       await this.apply(changes);
     });
+
+    this.persistActiveTree();
+  }
+
+  /** Persists the active family tree's current nodes/edges to localStorage. */
+  private persistActiveTree(): void {
+    this.familyTreeStore.saveActiveTreeData(
+      JSON.parse(this.modelService.toJSON()) as FamilyTreeData,
+    );
   }
 
   /**

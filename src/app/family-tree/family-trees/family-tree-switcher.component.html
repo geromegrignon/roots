@@ -1,0 +1,18 @@
+<div class="tree-switcher">
+  <span class="icon icon-tree" aria-hidden="true"></span>
+  <select
+    #treeSelect
+    class="tree-select"
+    aria-label="Switch family tree"
+    [value]="store.activeTreeId()"
+    (change)="onChange($event, treeSelect)"
+  >
+    @for (tree of store.trees(); track tree.id) {
+      <option [value]="tree.id">{{ tree.name }}</option>
+    }
+    <option [value]="ADD_NEW_FAMILY_TREE_VALUE">+ Add new family tree…</option>
+  </select>
+  <span class="icon icon-caret" aria-hidden="true"></span>
+</div>
+
+<app-add-family-tree-modal [isOpen]="isAddModalOpen()" (closed)="closeAddModal()" />

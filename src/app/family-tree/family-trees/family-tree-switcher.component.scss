@@ -1,0 +1,55 @@
+.tree-switcher {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tree-select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  max-width: 180px; /* No Figma token */
+  padding: var(--ngd-token-spacing-input-m-v-pad) var(--ngd-token-spacing-input-m-h-pad);
+  padding-inline-start: calc(var(--ngd-token-spacing-input-m-h-pad) + 20px); /* No Figma token */
+  padding-inline-end: calc(var(--ngd-token-spacing-input-m-h-pad) + 14px); /* No Figma token */
+  border: var(--ngd-primitive-odd-1) solid var(--ngd-input-stroke-primary-default); /* No Figma token */
+  border-radius: var(--ngd-token-radius-input-m);
+  background: var(--ngd-ui-bg-primary-default);
+  color: var(--ngd-txt-primary-default);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: border-color 150ms ease;
+
+  &:focus-visible {
+    border-color: var(--ngd-input-stroke-primary-focus);
+    outline: none;
+  }
+}
+
+.icon {
+  display: inline-block;
+  background-color: var(--ngd-nav-button-icon-primary-default);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  pointer-events: none;
+  position: absolute;
+}
+
+.icon-tree {
+  width: var(--ngd-primitive-4rule-16); /* No Figma token */
+  height: var(--ngd-primitive-4rule-16); /* No Figma token */
+  left: var(--ngd-token-spacing-input-m-h-pad);
+  mask-image: url('../../../assets/tree-structure.svg');
+  -webkit-mask-image: url('../../../assets/tree-structure.svg');
+}
+
+.icon-caret {
+  width: 9px;
+  height: 5px;
+  right: var(--ngd-token-spacing-input-m-h-pad);
+  mask-image: url('../../../assets/caret-down.svg');
+  -webkit-mask-image: url('../../../assets/caret-down.svg');
+}

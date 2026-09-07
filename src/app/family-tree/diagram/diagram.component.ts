@@ -76,6 +76,11 @@ export class DiagramComponent {
     zIndex: {
       elevateOnSelection: false,
     },
+    // Node positions are owned entirely by the auto-layout (ELK.js) pass and should only
+    // change when the family structure changes (add/remove a member), never by manual
+    // dragging. This also fully disables the drag-and-drop reorder feature below, since it
+    // relies on ng-diagram's own node-drag gesture (nodeDragStarted/nodeDragEnded) to work.
+    nodeDraggingEnabled: false,
   } satisfies NgDiagramConfig;
 
   nodeTemplateMap = new NgDiagramNodeTemplateMap([[NodeTemplateType.FamilyTreeNode, NodeComponent]]);

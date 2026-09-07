@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { provideNgDiagram } from 'ng-diagram';
+import { MessageService } from '@openng/optimus-ui/api';
+import { Toast } from '@openng/optimus-ui/toast';
 import { LayoutAnimationService } from '../diagram/animation/layout-animation.service';
 import { DiagramComponent } from '../diagram/diagram.component';
 import { LayoutGate } from '../diagram/layout/layout-gate';
@@ -33,6 +35,7 @@ import { registerPeopleWebMcpTools } from '../webmcp/people-mcp-tools';
     ToolbarHorizontalComponent,
     ViewportBoundsDirective,
     ViewportOverlayDirective,
+    Toast,
   ],
   templateUrl: './family-tree-page.component.html',
   styleUrl: './family-tree-page.component.scss',
@@ -55,6 +58,7 @@ import { registerPeopleWebMcpTools } from '../webmcp/people-mcp-tools';
     NodeVisibilityService,
     NodeVisibilityConfigService,
     FamilyTreeStoreService,
+    MessageService,
   ],
 })
 export class FamilyTreePageComponent {

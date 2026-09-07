@@ -1,4 +1,5 @@
 import { declareExperimentalWebMcpTool, inject } from '@angular/core';
+import { MessageService } from '@openng/optimus-ui/api';
 import {
   NgDiagramModelService,
   NgDiagramSelectionService,
@@ -373,6 +374,28 @@ export function registerPeopleWebMcpTools(): void {
   const layoutService = inject(LayoutService);
   const modelApplyService = inject(ModelApplyService);
   const nodeVisibilityService = inject(NodeVisibilityService);
+  const messageService = inject(MessageService);
+
+  /**
+   * Wraps a tool's `execute` callback so a toast is shown once it resolves, naming the
+   * invoked tool. Used for every WebMCP tool below so an agent's actions are visible in
+   * the UI as they happen.
+   */
+  function withToast<Args extends unknown[], Result>(
+    name: string,
+    execute: (...args: Args) => Result | Promise<Result>,
+  ): (...args: Args) => Promise<Result> {
+    return async (...args: Args) => {
+      const result = await execute(...args);
+      messageService.add({
+        severity: 'info',
+        summary: 'WebMCP tool invoked',
+        detail: name,
+        life: 3000,
+      });
+      return result;
+    };
+  }
 
   declareExperimentalWebMcpTool({
     name: 'list_people',
@@ -407,7 +430,7 @@ export function registerPeopleWebMcpTools(): void {
         },
       },
     },
-    execute: async (input: {
+    execute: withToast('list_people', async (input: {
       query?: string;
       status?: 'alive' | 'deceased';
       bornAfter?: number;
@@ -431,7 +454,7 @@ export function registerPeopleWebMcpTools(): void {
         results.push(toPersonSummary(node.id, data, parentId, childIds));
       }
       return { people: results, count: results.length };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -445,7 +468,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['id'],
     },
-    execute: async (input: { id: string }) => {
+    execute: withToast('get_person', async (input: { id: string }) => {
       const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
       if (!node || !isOccupiedNode(node)) {
         return { error: `No person found with id "${input.id}".` };
@@ -454,7 +477,7 @@ export function registerPeopleWebMcpTools(): void {
       const parentId = hierarchyService.getParentId(node.id);
       const childIds = childIdsOf(modelService, node.id);
       return { person: toPersonSummary(node.id, data, parentId, childIds) };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -479,7 +502,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['parentId'],
     },
-    execute: async (input: { parentId: string } & PersonFieldsInput) => {
+    execute: withToast('add_person', async (input: { parentId: string } & PersonFieldsInput) => {
       const parentNode = modelService.getNodeById<FamilyTreeNodeData>(input.parentId);
       if (!parentNode) {
         return { error: `No person found with id "${input.parentId}".` };
@@ -497,7 +520,7 @@ export function registerPeopleWebMcpTools(): void {
       selectionService.select([newNodeId]);
       await viewportService.zoomToFit({ nodeIds: [newNodeId] });
       return { id: newNodeId, message: 'Person added.' };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -522,7 +545,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['id'],
     },
-    execute: async (input: { id: string } & PersonFieldsInput) => {
+    execute: withToast('update_person', async (input: { id: string } & PersonFieldsInput) => {
       const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
       if (!node || !isOccupiedNode(node)) {
         return { error: `No person found with id "${input.id}".` };
@@ -534,7 +557,7 @@ export function registerPeopleWebMcpTools(): void {
       selectionService.select([input.id]);
       await viewportService.zoomToFit({ nodeIds: [input.id] });
       return { id: input.id, message: 'Person updated.' };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -552,7 +575,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['id'],
     },
-    execute: async (input: { id: string }) => {
+    execute: withToast('get_alive_descendants', async (input: { id: string }) => {
       const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
       if (!node || !isOccupiedNode(node)) {
         return { error: `No person found with id "${input.id}".` };
@@ -565,7 +588,7 @@ export function registerPeopleWebMcpTools(): void {
         note:
           'These are genealogical facts only, not a legal determination of heirs or inheritance shares.',
       };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -578,7 +601,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['id'],
     },
-    execute: async (input: { id: string }) => {
+    execute: withToast('get_siblings', async (input: { id: string }) => {
       const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
       if (!node || !isOccupiedNode(node)) {
         return { error: `No person found with id "${input.id}".` };
@@ -596,7 +619,7 @@ export function registerPeopleWebMcpTools(): void {
         siblings.push(toPersonSummary(siblingId, data, parentId, childIdsOf(modelService, siblingId)));
       }
       return { siblings, count: siblings.length };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -611,7 +634,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['id'],
     },
-    execute: async (input: { id: string }) => {
+    execute: withToast('get_ancestors', async (input: { id: string }) => {
       const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
       if (!node || !isOccupiedNode(node)) {
         return { error: `No person found with id "${input.id}".` };
@@ -631,7 +654,7 @@ export function registerPeopleWebMcpTools(): void {
         });
       });
       return { ancestors, count: ancestors.length };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -648,7 +671,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['firstId', 'secondId'],
     },
-    execute: async (input: { firstId: string; secondId: string }) => {
+    execute: withToast('find_relationship', async (input: { firstId: string; secondId: string }) => {
       const nodeA = modelService.getNodeById<FamilyTreeNodeData>(input.firstId);
       const nodeB = modelService.getNodeById<FamilyTreeNodeData>(input.secondId);
       if (!nodeA || !isOccupiedNode(nodeA)) {
@@ -697,7 +720,7 @@ export function registerPeopleWebMcpTools(): void {
         summary: `${nameA} is the ${aToB} of ${nameB}.`,
         note: 'This describes the family relationship only, not any legal or inheritance implications.',
       };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -719,7 +742,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['ids'],
     },
-    execute: async (input: { ids: string[] }) => {
+    execute: withToast('focus_people', async (input: { ids: string[] }) => {
       if (!input.ids || input.ids.length === 0) {
         return { error: 'Provide at least one person id.' };
       }
@@ -757,7 +780,7 @@ export function registerPeopleWebMcpTools(): void {
         await zoomToFitNodesOnly(modelService, viewportService, fitNodeIds);
       }
       return { ids: input.ids, message: 'Focused on the requested people and their descendants.' };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -774,22 +797,22 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['direction'],
     },
-    execute: async (input: { direction: LayoutDirection }) => {
+    execute: withToast('set_layout_direction', async (input: { direction: LayoutDirection }) => {
       layoutService.setDirection(input.direction);
       await modelApplyService.applyWithLayout();
       await viewportService.zoomToFit();
       return { direction: input.direction, message: 'Layout direction changed.' };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
     name: 'zoom_to_fit',
     description: 'Pans/zooms the viewport so the entire family tree is visible, without changing any data.',
     inputSchema: { type: 'object', properties: {} },
-    execute: async () => {
+    execute: withToast('zoom_to_fit', async () => {
       await viewportService.zoomToFit();
       return { message: 'Zoomed to fit the diagram.' };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -828,7 +851,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['entries'],
     },
-    execute: async (input: {
+    execute: withToast('add_people', async (input: {
       entries: Array<{ tempId: string; parentId?: string; parentTempId?: string } & PersonFieldsInput>;
     }) => {
       const entries = input.entries;
@@ -907,7 +930,7 @@ export function registerPeopleWebMcpTools(): void {
       selectionService.select(newIds);
       await viewportService.zoomToFit({ nodeIds: newIds });
       return { added, count: added.length, message: `Added ${added.length} people.` };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -926,7 +949,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['id'],
     },
-    execute: async (input: { id: string; cascade?: boolean }) => {
+    execute: withToast('remove_person', async (input: { id: string; cascade?: boolean }) => {
       const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
       if (!node || !isOccupiedNode(node)) {
         return { error: `No person found with id "${input.id}".` };
@@ -945,7 +968,7 @@ export function registerPeopleWebMcpTools(): void {
       }
       await nodeMutationService.removeNode(input.id);
       return { id: input.id, removedCount: descendantIds.length + 1, message: 'Person removed.' };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -961,7 +984,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['id', 'collapsed'],
     },
-    execute: async (input: { id: string; collapsed: boolean }) => {
+    execute: withToast('set_subtree_collapsed', async (input: { id: string; collapsed: boolean }) => {
       const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
       if (!node || !isOccupiedNode(node)) {
         return { error: `No person found with id "${input.id}".` };
@@ -983,7 +1006,7 @@ export function registerPeopleWebMcpTools(): void {
         collapsed: input.collapsed,
         message: `Subtree ${input.collapsed ? 'collapsed' : 'expanded'}.`,
       };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
@@ -1003,7 +1026,7 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['parentId', 'order'],
     },
-    execute: async (input: { parentId: string; order: string[] }) => {
+    execute: withToast('reorder_children', async (input: { parentId: string; order: string[] }) => {
       const parentNode = modelService.getNodeById(input.parentId);
       if (!parentNode) {
         return { error: `No person found with id "${input.parentId}".` };
@@ -1028,16 +1051,16 @@ export function registerPeopleWebMcpTools(): void {
       });
       await modelApplyService.applyWithLayout(changes);
       return { parentId: input.parentId, order: input.order, message: 'Children reordered.' };
-    },
+    }),
   });
 
   declareExperimentalWebMcpTool({
     name: 'export_tree',
     description: 'Exports the entire family tree diagram (all nodes and edges) as structured JSON.',
     inputSchema: { type: 'object', properties: {} },
-    execute: async () => {
+    execute: withToast('export_tree', async () => {
       const json = modelService.toJSON();
       return { tree: JSON.parse(json) };
-    },
+    }),
   });
 }

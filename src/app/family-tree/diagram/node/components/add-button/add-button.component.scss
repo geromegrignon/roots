@@ -16,6 +16,23 @@
   transition: opacity 150ms ease;
   animation: fade-in 150ms ease;
 
+  /*
+   * The icon below is a single mask (`plus-circle.svg`) that carves the
+   * plus symbol as a transparent hole out of a filled disc, so the mask
+   * itself has no opaque backing - whatever sits underneath the button
+   * (e.g. a node connection line) shows through the plus's negative space.
+   * This pseudo-element is a real, unmasked circle painted behind the icon
+   * so that hole reveals an opaque surface instead of the canvas content.
+   */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: 50%;
+    background: var(--ngd-ui-bg-primary-default);
+  }
+
   &:hover &__icon {
     background-color: var(--ngd-nav-button-icon-primary-default);
   }
@@ -25,6 +42,8 @@
   }
 
   &__icon {
+    position: relative;
+    z-index: 1;
     width: var(--add-button-size);
     height: var(--add-button-size);
     display: block;

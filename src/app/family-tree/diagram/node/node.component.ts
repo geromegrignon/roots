@@ -86,7 +86,6 @@ export class NodeComponent implements NgDiagramNodeTemplate<FamilyTreeNodeData> 
       : 'full';
   });
   protected color = computed(() => getColorForGender(this.occupiedData()?.gender));
-  protected spouseColor = computed(() => getColorForGender(this.occupiedData()?.spouseGender));
   protected occupiedData = computed(() => {
     const data = this.node().data;
     if (!isOccupiedNodeData(data)) {

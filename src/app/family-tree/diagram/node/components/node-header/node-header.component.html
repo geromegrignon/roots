@@ -1,4 +1,13 @@
-<app-initials-avatar [fullName]="fullName()" [color]="color()" [size]="avatarSize()" class="h9" />
+@if (vacant()) {
+  <app-initials-avatar [size]="avatarSize()" />
+} @else {
+  <app-nice-avatar
+    [seed]="fullName() ?? ''"
+    [sex]="avatarSex()"
+    [size]="avatarSize()"
+    [hairColorRandom]="true"
+  />
+}
 <div class="info">
   <span class="name h9" [class.node-name--vacant]="vacant()">{{ displayName() }}</span>
   @if (subtitle()) {

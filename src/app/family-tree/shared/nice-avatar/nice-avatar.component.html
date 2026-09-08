@@ -1,0 +1,36 @@
+<div
+  style="position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: inherit"
+>
+  <div style="position: absolute; bottom: 0; width: 100%; height: 90%">
+    <app-nice-avatar-face [color]="config().faceColor" [uid]="uid" />
+    <app-nice-avatar-hair
+      [color]="config().hairColor"
+      [variant]="config().hairStyle"
+      [colorRandom]="hairColorRandom()"
+    />
+
+    <!-- Face detail: eyebrows, eyes, glasses, ear, nose, mouth -->
+    <div
+      style="
+        position: absolute;
+        right: -3%;
+        top: 30%;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <app-nice-avatar-eyebrow [variant]="config().eyeBrowStyle" />
+      <app-nice-avatar-eyes [variant]="config().eyeStyle" />
+      <app-nice-avatar-glasses [variant]="config().glassesStyle" />
+      <app-nice-avatar-ear [color]="config().faceColor" [size]="config().earSize" />
+      <app-nice-avatar-nose [variant]="config().noseStyle" />
+      <app-nice-avatar-mouth [variant]="config().mouthStyle" [uid]="uid" />
+    </div>
+
+    <app-nice-avatar-shirt [color]="config().shirtColor" [variant]="config().shirtStyle" />
+  </div>
+</div>

@@ -13,13 +13,13 @@
 >
   <ng-template pTemplate="selectedItem" let-option>
     <div class="parent-option">
-      <app-initials-avatar [fullName]="option?.label" [color]="option?.data?.color" size="md" />
+      <app-nice-avatar [seed]="option?.label ?? ''" [sex]="option?.data?.sex" size="md" />
       <span class="option-label">{{ option?.label }}</span>
     </div>
   </ng-template>
   <ng-template pTemplate="item" let-option>
     <div class="parent-option">
-      <app-initials-avatar [fullName]="option.label" [color]="option.data.color" size="md" />
+      <app-nice-avatar [seed]="option.label" [sex]="option.data.sex" size="md" />
       <span class="option-label">{{ option.label }}</span>
     </div>
   </ng-template>

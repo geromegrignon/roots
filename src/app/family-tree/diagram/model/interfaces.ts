@@ -1,3 +1,5 @@
+import type { Sex } from '../../shared/nice-avatar/nice-avatar-config';
+
 export enum NodeTemplateType {
   FamilyTreeNode = 'familyTreeNode',
 }
@@ -23,6 +25,23 @@ const GENDER_COLORS: Record<Gender, string> = {
 
 export function getColorForGender(gender: Gender | undefined): string | undefined {
   return gender ? GENDER_COLORS[gender] : undefined;
+}
+
+const GENDER_AVATAR_SEX: Record<Gender, Sex> = {
+  [Gender.Female]: 'woman',
+  [Gender.Male]: 'man',
+};
+
+/**
+ * Maps a person's recorded gender to the avatar library's "sex" preset,
+ * which limits their generated avatar's hairstyle/eyebrow options to the
+ * matching pool (see `NiceAvatarComponent`/`genConfig`). Everything else
+ * about the avatar (face, eyes, nose, mouth, shirt, colors, ...) is
+ * unaffected and stays derived purely from the person's own seed, so two
+ * people of the same gender don't end up looking alike.
+ */
+export function getAvatarSexForGender(gender: Gender | undefined): Sex | undefined {
+  return gender ? GENDER_AVATAR_SEX[gender] : undefined;
 }
 
 /** Renders a person's birth/death years as "1970 – 2020", "b. 1970", or "" if neither is set. */

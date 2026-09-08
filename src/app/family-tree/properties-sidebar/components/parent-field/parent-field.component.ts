@@ -6,15 +6,15 @@ import { PrimeTemplate } from '@openng/optimus-ui/api';
 import { Select } from '@openng/optimus-ui/select';
 import {
   formatFullName,
-  getColorForGender,
+  getAvatarSexForGender,
   type FamilyTreeOccupiedNodeData,
 } from '../../../diagram/model/interfaces';
 import { type SelectOption } from '../../../shared/select-option/select-option';
-import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
+import { NiceAvatarComponent } from '../../../shared/nice-avatar/nice-avatar.component';
 
 @Component({
   selector: 'app-parent-field',
-  imports: [FormsModule, Select, PrimeTemplate, InitialsAvatarComponent],
+  imports: [FormsModule, Select, PrimeTemplate, NiceAvatarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './parent-field.component.html',
   styleUrl: './parent-field.component.scss',
@@ -38,6 +38,6 @@ export class ParentFieldComponent implements FormValueControl<string | null> {
   private mapNodeToOption = (node: Node<FamilyTreeOccupiedNodeData>): SelectOption<string> => ({
     value: node.id,
     label: formatFullName(node.data.firstName, node.data.lastName),
-    data: { color: getColorForGender(node.data.gender) },
+    data: { sex: getAvatarSexForGender(node.data.gender) },
   });
 }

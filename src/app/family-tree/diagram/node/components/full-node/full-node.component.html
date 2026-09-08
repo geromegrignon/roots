@@ -1,5 +1,5 @@
 <div class="node" [style.--node-accent]="color()">
-  <app-node-header [fullName]="fullName()" [subtitle]="lifespan()" [color]="color()" />
+  <app-node-header [fullName]="fullName()" [subtitle]="lifespan()" [gender]="gender()" />
 
   @if (spouseFirstName()) {
     <div class="spouse-divider"></div>
@@ -7,7 +7,7 @@
       class="spouse"
       [fullName]="spouseFullName()"
       [subtitle]="spouseLifespan()"
-      [color]="spouseColor()"
+      [gender]="spouseGender()"
       avatarSize="md"
     />
   }

@@ -22,7 +22,6 @@ export class FullNodeComponent {
   spouseGender = input<Gender>();
   spouseBirthYear = input<number>();
   spouseDeathYear = input<number>();
-  spouseColor = input<string>();
 
   protected readonly fullName = computed(() => formatFullName(this.firstName(), this.lastName()));
   protected readonly spouseFullName = computed(() =>

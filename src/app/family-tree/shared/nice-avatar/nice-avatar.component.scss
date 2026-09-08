@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  &.size-md {
+    width: 36px; /* Matches app-initials-avatar's --initials-size for size="md" */
+    height: 36px;
+  }
+
+  &.size-xl {
+    width: 44px; /* Matches app-initials-avatar's --initials-size for size="xl" */
+    height: 44px;
+  }
+}

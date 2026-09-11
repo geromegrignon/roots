@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { CommunityCvPanelComponent } from './community-cv/community-cv-panel.component';
 import { SidebarFormComponent } from './components/sidebar-form/sidebar-form.component';
 import {
   ON_FIELD_CHANGE,
@@ -12,7 +13,12 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
 
 @Component({
   selector: 'app-properties-sidebar',
-  imports: [SidebarHeaderComponent, SidebarPlaceholderComponent, SidebarFormComponent],
+  imports: [
+    SidebarHeaderComponent,
+    SidebarPlaceholderComponent,
+    SidebarFormComponent,
+    CommunityCvPanelComponent,
+  ],
   providers: [
     SidebarFormService,
     {
@@ -26,7 +32,10 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
   templateUrl: './properties-sidebar.component.html',
   styleUrl: './properties-sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class.expanded]': 'isExpanded()' },
+  host: {
+    '[class.expanded]': 'isExpanded()',
+    '[class.cv-active]': 'isCommunityCvActive()',
+  },
 })
 export class PropertiesSidebarComponent {
   private readonly sidebarService = inject(PropertiesSidebarService);
@@ -38,9 +47,15 @@ export class PropertiesSidebarComponent {
   protected readonly selectedNodeParentId = this.sidebarService.selectedNodeParentId;
   protected readonly parentCandidateNodes = this.sidebarService.parentCandidateNodes;
   protected readonly genderOptions = this.sidebarService.genderOptions;
+  protected readonly isCommunityCvSubject = this.sidebarService.focusedOnCommunityCvSubject;
+  protected readonly isCommunityCvActive = this.sidebarService.isCommunityCvActive;
 
   protected onHeaderToggle(): void {
     this.sidebarService.toggleSidebarVisibility();
+  }
+
+  protected onCommunityCvToggle(): void {
+    this.sidebarService.toggleCommunityCv();
   }
 
   protected onRemoveNode(): void {

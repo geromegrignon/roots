@@ -9,6 +9,12 @@
   color: var(--ngd-txt-primary-default);
 }
 
+.sidebar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* No Figma token */
+}
+
 .sidebar-toggle {
   display: flex;
   align-items: center;
@@ -22,6 +28,10 @@
   &:hover {
     background: var(--ngd-ui-bg-tertiary-default);
   }
+}
+
+.cv-toggle .icon {
+  background-color: var(--ngd-colors-acc6-400); /* No Figma token - star is always gold-tinted */
 }
 
 .icon {
@@ -38,4 +48,9 @@
 .icon-sidebar {
   mask-image: url('../../../../../assets/sidebar.svg');
   -webkit-mask-image: url('../../../../../assets/sidebar.svg');
+}
+
+.icon-star {
+  mask-image: url('../../../../../assets/star.svg');
+  -webkit-mask-image: url('../../../../../assets/star.svg');
 }

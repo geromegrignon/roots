@@ -1,32 +1,45 @@
-<aside class="sidebar" aria-labelledby="properties-sidebar-title">
-  <app-sidebar-header [isExpanded]="isExpanded()" (toggle)="onHeaderToggle()" />
-  @if (isExpanded()) {
-    <div class="sidebar-separator"></div>
-    <div class="sidebar-content sidebar-enter">
-      @if (state() === 'single' && selectedNode(); as node) {
-        <app-sidebar-form
-          [nodeId]="node.id"
-          [nodeData]="node.data"
-          [nodeParentId]="selectedNodeParentId()"
-          [parentCandidateNodes]="parentCandidateNodes()"
-          [genderOptions]="genderOptions"
-        />
-        <div class="sidebar-actions">
-          <button class="remove-button p10" type="button" (click)="onRemoveNode()">
-            Remove node
-          </button>
-        </div>
-      } @else if (state() === 'empty') {
-        <app-sidebar-placeholder
-          title="No selection"
-          description="Select a person's card on the canvas to view their details."
-        />
-      } @else {
-        <app-sidebar-placeholder
-          title="Multiple items selected."
-          description="Please select a single node to view properties."
-        />
-      }
-    </div>
+<aside
+  class="sidebar"
+  [attr.aria-label]="isCommunityCvActive() ? 'Community CV' : null"
+  [attr.aria-labelledby]="isCommunityCvActive() ? null : 'properties-sidebar-title'"
+>
+  @if (isCommunityCvActive()) {
+    <app-community-cv-panel (close)="onCommunityCvToggle()" />
+  } @else {
+    <app-sidebar-header
+      [isExpanded]="isExpanded()"
+      [showCommunityCvButton]="isCommunityCvSubject()"
+      (toggle)="onHeaderToggle()"
+      (communityCvToggle)="onCommunityCvToggle()"
+    />
+    @if (isExpanded()) {
+      <div class="sidebar-separator"></div>
+      <div class="sidebar-content sidebar-enter">
+        @if (state() === 'single' && selectedNode(); as node) {
+          <app-sidebar-form
+            [nodeId]="node.id"
+            [nodeData]="node.data"
+            [nodeParentId]="selectedNodeParentId()"
+            [parentCandidateNodes]="parentCandidateNodes()"
+            [genderOptions]="genderOptions"
+          />
+          <div class="sidebar-actions">
+            <button class="remove-button p10" type="button" (click)="onRemoveNode()">
+              Remove node
+            </button>
+          </div>
+        } @else if (state() === 'empty') {
+          <app-sidebar-placeholder
+            title="No selection"
+            description="Select a person's card on the canvas to view their details."
+          />
+        } @else {
+          <app-sidebar-placeholder
+            title="Multiple items selected."
+            description="Please select a single node to view properties."
+          />
+        }
+      </div>
+    }
   }
 </aside>

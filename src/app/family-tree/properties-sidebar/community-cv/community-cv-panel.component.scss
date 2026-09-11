@@ -1,0 +1,119 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  color: var(--ngd-txt-primary-default);
+  animation: cv-content-enter 320ms ease 80ms backwards;
+}
+
+@keyframes cv-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ngd-primitive-4rule-16); /* No Figma token */
+  padding: var(--ngd-primitive-4rule-16); /* No Figma token */
+  flex: 0 0 auto;
+}
+
+.cv-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* No Figma token */
+  min-width: 0;
+}
+
+.cv-name {
+  color: var(--ngd-txt-primary-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cv-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  border-radius: var(--ngd-token-radius-button-s); /* No Figma token - wrong token */
+  padding: var(--ngd-token-spacing-button-s-v-pad-2); /* No Figma token - wrong token */
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ngd-ui-bg-tertiary-default);
+  }
+}
+
+.icon {
+  --icon-size: 18px; /* No Figma token */
+  display: inline-block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-color: var(--ngd-nav-button-icon-primary-default);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.icon-close {
+  mask-image: url('../../../../assets/close.svg');
+  -webkit-mask-image: url('../../../../assets/close.svg');
+}
+
+.cv-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ngd-primitive-4rule-16); /* No Figma token */
+  box-sizing: border-box;
+}
+
+.cv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ngd-primitive-4rule-16); /* No Figma token */
+  width: 100%;
+  max-width: 480px; /* No Figma token */
+}
+
+.cv-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ngd-primitive-4rule-12); /* No Figma token */
+  aspect-ratio: 1 / 1;
+  padding: var(--ngd-primitive-4rule-16); /* No Figma token */
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-element-24);
+  background: var(--ngd-ui-bg-secondary-default);
+  box-sizing: border-box;
+}
+
+.cv-card-icon {
+  width: 160px; /* No Figma token */
+  height: 160px; /* No Figma token */
+  object-fit: contain;
+}
+
+.cv-card-title {
+  color: var(--ngd-txt-primary-default);
+  text-align: center;
+  font-size: 1.5rem; /* No Figma token - 2x the p10 base size */
+}

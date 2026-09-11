@@ -1,0 +1,20 @@
+<header class="cv-header">
+  <div class="cv-identity">
+    <app-nice-avatar seed="Gérôme GRIGNON" sex="man" size="xl" [hairColorRandom]="true" />
+    <span id="properties-sidebar-title" class="h7 cv-name">Gérôme Grignon</span>
+  </div>
+  <button class="cv-close" type="button" (click)="close.emit()" aria-label="Close community CV">
+    <span class="icon icon-close"></span>
+  </button>
+</header>
+
+<div class="cv-body">
+  <div class="cv-grid">
+    @for (item of highlights; track item.title) {
+      <div class="cv-card">
+        <img class="cv-card-icon" [src]="item.iconSrc" alt="" />
+        <span class="p10 cv-card-title">{{ item.title }}</span>
+      </div>
+    }
+  </div>
+</div>

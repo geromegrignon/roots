@@ -23,8 +23,10 @@ import { LayoutService, type LayoutDirection } from '../diagram/layout/layout.se
 import { ModelApplyService } from '../diagram/model/model-apply.service';
 import { ModelChanges } from '../diagram/model/model-changes';
 import { SortOrderService } from '../diagram/model/sort-order.service';
+import { isCommunityCvSubject } from '../properties-sidebar/community-cv/community-cv-match';
 import { NodeMutationService } from '../properties-sidebar/node-mutation.service';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
+import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import {
   EMPTY_FORM,
   formDataToNodeData,
@@ -105,7 +107,10 @@ interface PersonFieldsInput {
  * `SidebarFormData`, leaving every omitted field untouched. Used for both creating a person
  * (base = `EMPTY_FORM`) and updating one (base = that person's current form data).
  */
-function applyPersonFieldsToFormData(base: SidebarFormData, input: PersonFieldsInput): SidebarFormData {
+function applyPersonFieldsToFormData(
+  base: SidebarFormData,
+  input: PersonFieldsInput,
+): SidebarFormData {
   const merged: SidebarFormData = { ...base };
   if (input.firstName !== undefined) merged.firstName = input.firstName;
   if (input.lastName !== undefined) merged.lastName = input.lastName;
@@ -114,7 +119,8 @@ function applyPersonFieldsToFormData(base: SidebarFormData, input: PersonFieldsI
   if (input.deathYear !== undefined) merged.deathYear = input.deathYear;
   if (input.spouseFirstName !== undefined) merged.spouseFirstName = input.spouseFirstName;
   if (input.spouseLastName !== undefined) merged.spouseLastName = input.spouseLastName;
-  if (input.spouseGender !== undefined) merged.spouseGender = input.spouseGender as SidebarFormData['spouseGender'];
+  if (input.spouseGender !== undefined)
+    merged.spouseGender = input.spouseGender as SidebarFormData['spouseGender'];
   if (input.spouseBirthYear !== undefined) merged.spouseBirthYear = input.spouseBirthYear;
   if (input.spouseDeathYear !== undefined) merged.spouseDeathYear = input.spouseDeathYear;
   return merged;
@@ -157,7 +163,10 @@ function collectAllDescendantIds(modelService: NgDiagramModelService, rootId: st
  * person with no descendants (nothing to connect an edge to within the focus set), which is
  * exactly the case `zoomToFitNodesOnly` below is for.
  */
-function computeNodesBounds(modelService: NgDiagramModelService, nodeIds: Iterable<string>): Rect | null {
+function computeNodesBounds(
+  modelService: NgDiagramModelService,
+  nodeIds: Iterable<string>,
+): Rect | null {
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -231,7 +240,11 @@ function collectNearestAliveDescendants(
   modelService: NgDiagramModelService,
   rootId: string,
 ): { node: Node<FamilyTreeOccupiedNodeData>; generation: number; rootChildId: string }[] {
-  const results: { node: Node<FamilyTreeOccupiedNodeData>; generation: number; rootChildId: string }[] = [];
+  const results: {
+    node: Node<FamilyTreeOccupiedNodeData>;
+    generation: number;
+    rootChildId: string;
+  }[] = [];
   const queue: { id: string; generation: number; rootChildId: string }[] = childIdsOf(
     modelService,
     rootId,
@@ -343,7 +356,8 @@ function describeRelationship(depthA: number, depthB: number): { aToB: string; b
       : { aToB: nieceNephew, bToA: auntUncle };
   }
 
-  const removedSuffix = diff === 0 ? '' : `, ${diff === 1 ? 'once' : diff === 2 ? 'twice' : `${diff} times`} removed`;
+  const removedSuffix =
+    diff === 0 ? '' : `, ${diff === 1 ? 'once' : diff === 2 ? 'twice' : `${diff} times`} removed`;
   const cousinLabel = `${ordinal(cousinDegree)} cousin${removedSuffix}`;
   return { aToB: cousinLabel, bToA: cousinLabel };
 }
@@ -360,7 +374,8 @@ function describeRelationship(depthA: number, depthB: number): { aToB: string; b
  * NgDiagramSelectionService, NgDiagramViewportService, AddNodeService,
  * NodeMutationService, HierarchyService, SortOrderService,
  * ExpandCollapseService, LayoutService, ModelApplyService,
- * NodeVisibilityService) — e.g. a page component's constructor.
+ * NodeVisibilityService, PropertiesSidebarService) — e.g. a page
+ * component's constructor.
  */
 export function registerPeopleWebMcpTools(): void {
   const modelService = inject(NgDiagramModelService);
@@ -374,6 +389,7 @@ export function registerPeopleWebMcpTools(): void {
   const layoutService = inject(LayoutService);
   const modelApplyService = inject(ModelApplyService);
   const nodeVisibilityService = inject(NodeVisibilityService);
+  const propertiesSidebarService = inject(PropertiesSidebarService);
   const messageService = inject(MessageService);
 
   /**
@@ -409,12 +425,14 @@ export function registerPeopleWebMcpTools(): void {
       properties: {
         query: {
           type: 'string',
-          description: 'Free-text filter matched against first name, last name, and spouse name (case-insensitive).',
+          description:
+            'Free-text filter matched against first name, last name, and spouse name (case-insensitive).',
         },
         status: {
           type: 'string',
           enum: ['alive', 'deceased'],
-          description: 'Only include people who are alive (no death year) or deceased (has a death year).',
+          description:
+            'Only include people who are alive (no death year) or deceased (has a death year).',
         },
         bornAfter: {
           type: 'number',
@@ -426,35 +444,47 @@ export function registerPeopleWebMcpTools(): void {
         },
         hasChildren: {
           type: 'boolean',
-          description: 'Only include people who do (true) or do not (false) have any children in the tree.',
+          description:
+            'Only include people who do (true) or do not (false) have any children in the tree.',
         },
       },
     },
-    execute: withToast('list_people', async (input: {
-      query?: string;
-      status?: 'alive' | 'deceased';
-      bornAfter?: number;
-      bornBefore?: number;
-      hasChildren?: boolean;
-    }) => {
-      const nodes = modelService.nodes() as Node<FamilyTreeNodeData>[];
-      const results: PersonSummary[] = [];
-      for (const node of nodes) {
-        if (!isOccupiedNode(node)) continue;
-        const data = node.data as FamilyTreeOccupiedNodeData;
-        if (input.query && !matchesQuery(data, input.query)) continue;
-        if (input.status === 'alive' && data.deathYear) continue;
-        if (input.status === 'deceased' && !data.deathYear) continue;
-        if (input.bornAfter !== undefined && (!data.birthYear || data.birthYear <= input.bornAfter)) continue;
-        if (input.bornBefore !== undefined && (!data.birthYear || data.birthYear >= input.bornBefore)) continue;
-        const childIds = childIdsOf(modelService, node.id);
-        if (input.hasChildren === true && childIds.length === 0) continue;
-        if (input.hasChildren === false && childIds.length > 0) continue;
-        const parentId = hierarchyService.getParentId(node.id);
-        results.push(toPersonSummary(node.id, data, parentId, childIds));
-      }
-      return { people: results, count: results.length };
-    }),
+    execute: withToast(
+      'list_people',
+      async (input: {
+        query?: string;
+        status?: 'alive' | 'deceased';
+        bornAfter?: number;
+        bornBefore?: number;
+        hasChildren?: boolean;
+      }) => {
+        const nodes = modelService.nodes() as Node<FamilyTreeNodeData>[];
+        const results: PersonSummary[] = [];
+        for (const node of nodes) {
+          if (!isOccupiedNode(node)) continue;
+          const data = node.data as FamilyTreeOccupiedNodeData;
+          if (input.query && !matchesQuery(data, input.query)) continue;
+          if (input.status === 'alive' && data.deathYear) continue;
+          if (input.status === 'deceased' && !data.deathYear) continue;
+          if (
+            input.bornAfter !== undefined &&
+            (!data.birthYear || data.birthYear <= input.bornAfter)
+          )
+            continue;
+          if (
+            input.bornBefore !== undefined &&
+            (!data.birthYear || data.birthYear >= input.bornBefore)
+          )
+            continue;
+          const childIds = childIdsOf(modelService, node.id);
+          if (input.hasChildren === true && childIds.length === 0) continue;
+          if (input.hasChildren === false && childIds.length > 0) continue;
+          const parentId = hierarchyService.getParentId(node.id);
+          results.push(toPersonSummary(node.id, data, parentId, childIds));
+        }
+        return { people: results, count: results.length };
+      },
+    ),
   });
 
   declareExperimentalWebMcpTool({
@@ -488,7 +518,10 @@ export function registerPeopleWebMcpTools(): void {
     inputSchema: {
       type: 'object',
       properties: {
-        parentId: { type: 'string', description: 'The id of the existing person to add this new person as a child of.' },
+        parentId: {
+          type: 'string',
+          description: 'The id of the existing person to add this new person as a child of.',
+        },
         firstName: { type: 'string' },
         lastName: { type: 'string' },
         gender: { type: 'string', enum: GENDER_ENUM },
@@ -571,7 +604,10 @@ export function registerPeopleWebMcpTools(): void {
     inputSchema: {
       type: 'object',
       properties: {
-        id: { type: 'string', description: 'The id of the person whose nearest living descendants to find.' },
+        id: {
+          type: 'string',
+          description: 'The id of the person whose nearest living descendants to find.',
+        },
       },
       required: ['id'],
     },
@@ -585,8 +621,7 @@ export function registerPeopleWebMcpTools(): void {
         rootId: input.id,
         aliveDescendants: descendants,
         count: descendants.length,
-        note:
-          'These are genealogical facts only, not a legal determination of heirs or inheritance shares.',
+        note: 'These are genealogical facts only, not a legal determination of heirs or inheritance shares.',
       };
     }),
   });
@@ -616,7 +651,9 @@ export function registerPeopleWebMcpTools(): void {
         const siblingNode = modelService.getNodeById<FamilyTreeNodeData>(siblingId);
         if (!siblingNode || !isOccupiedNode(siblingNode)) continue;
         const data = siblingNode.data as FamilyTreeOccupiedNodeData;
-        siblings.push(toPersonSummary(siblingId, data, parentId, childIdsOf(modelService, siblingId)));
+        siblings.push(
+          toPersonSummary(siblingId, data, parentId, childIdsOf(modelService, siblingId)),
+        );
       }
       return { siblings, count: siblings.length };
     }),
@@ -671,56 +708,59 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['firstId', 'secondId'],
     },
-    execute: withToast('find_relationship', async (input: { firstId: string; secondId: string }) => {
-      const nodeA = modelService.getNodeById<FamilyTreeNodeData>(input.firstId);
-      const nodeB = modelService.getNodeById<FamilyTreeNodeData>(input.secondId);
-      if (!nodeA || !isOccupiedNode(nodeA)) {
-        return { error: `No person found with id "${input.firstId}".` };
-      }
-      if (!nodeB || !isOccupiedNode(nodeB)) {
-        return { error: `No person found with id "${input.secondId}".` };
-      }
-      const chainA = getAncestorChain(hierarchyService, input.firstId);
-      const chainB = getAncestorChain(hierarchyService, input.secondId);
-      const chainBIndex = new Map(chainB.map((id, index) => [id, index]));
-      let commonAncestorId: string | null = null;
-      let depthA = -1;
-      let depthB = -1;
-      for (let i = 0; i < chainA.length; i++) {
-        const candidate = chainA[i];
-        if (chainBIndex.has(candidate)) {
-          commonAncestorId = candidate;
-          depthA = i;
-          depthB = chainBIndex.get(candidate)!;
-          break;
+    execute: withToast(
+      'find_relationship',
+      async (input: { firstId: string; secondId: string }) => {
+        const nodeA = modelService.getNodeById<FamilyTreeNodeData>(input.firstId);
+        const nodeB = modelService.getNodeById<FamilyTreeNodeData>(input.secondId);
+        if (!nodeA || !isOccupiedNode(nodeA)) {
+          return { error: `No person found with id "${input.firstId}".` };
         }
-      }
-      if (commonAncestorId === null) {
+        if (!nodeB || !isOccupiedNode(nodeB)) {
+          return { error: `No person found with id "${input.secondId}".` };
+        }
+        const chainA = getAncestorChain(hierarchyService, input.firstId);
+        const chainB = getAncestorChain(hierarchyService, input.secondId);
+        const chainBIndex = new Map(chainB.map((id, index) => [id, index]));
+        let commonAncestorId: string | null = null;
+        let depthA = -1;
+        let depthB = -1;
+        for (let i = 0; i < chainA.length; i++) {
+          const candidate = chainA[i];
+          if (chainBIndex.has(candidate)) {
+            commonAncestorId = candidate;
+            depthA = i;
+            depthB = chainBIndex.get(candidate)!;
+            break;
+          }
+        }
+        if (commonAncestorId === null) {
+          return {
+            related: false,
+            message: 'These two people share no common ancestor in the tree.',
+          };
+        }
+        const { aToB, bToA } = describeRelationship(depthA, depthB);
+        const nameA = formatFullName(
+          (nodeA.data as FamilyTreeOccupiedNodeData).firstName,
+          (nodeA.data as FamilyTreeOccupiedNodeData).lastName,
+        );
+        const nameB = formatFullName(
+          (nodeB.data as FamilyTreeOccupiedNodeData).firstName,
+          (nodeB.data as FamilyTreeOccupiedNodeData).lastName,
+        );
         return {
-          related: false,
-          message: 'These two people share no common ancestor in the tree.',
+          related: true,
+          firstId: input.firstId,
+          secondId: input.secondId,
+          commonAncestorId,
+          relationshipOfFirstToSecond: aToB,
+          relationshipOfSecondToFirst: bToA,
+          summary: `${nameA} is the ${aToB} of ${nameB}.`,
+          note: 'This describes the family relationship only, not any legal or inheritance implications.',
         };
-      }
-      const { aToB, bToA } = describeRelationship(depthA, depthB);
-      const nameA = formatFullName(
-        (nodeA.data as FamilyTreeOccupiedNodeData).firstName,
-        (nodeA.data as FamilyTreeOccupiedNodeData).lastName,
-      );
-      const nameB = formatFullName(
-        (nodeB.data as FamilyTreeOccupiedNodeData).firstName,
-        (nodeB.data as FamilyTreeOccupiedNodeData).lastName,
-      );
-      return {
-        related: true,
-        firstId: input.firstId,
-        secondId: input.secondId,
-        commonAncestorId,
-        relationshipOfFirstToSecond: aToB,
-        relationshipOfSecondToFirst: bToA,
-        summary: `${nameA} is the ${aToB} of ${nameB}.`,
-        note: 'This describes the family relationship only, not any legal or inheritance implications.',
-      };
-    }),
+      },
+    ),
   });
 
   declareExperimentalWebMcpTool({
@@ -784,8 +824,58 @@ export function registerPeopleWebMcpTools(): void {
   });
 
   declareExperimentalWebMcpTool({
+    name: 'show_community_cv',
+    description:
+      "Opens Gérôme Grignon's community-CV panel: a full-viewport takeover, in place of the " +
+      'properties sidebar, showing a 2x2 grid of highlight cards (Optimus UI, Discord Admin, ' +
+      "Angular Can I Use, NG Baguette Conf). Selects his node if it isn't already selected, " +
+      'then opens the panel — equivalent to the user clicking the star toggle in the properties ' +
+      'sidebar while his node is selected. Use this for requests like "show Gérôme Grignon\'s ' +
+      'highlights/contributions/CV" or "open the community CV".',
+    inputSchema: { type: 'object', properties: {} },
+    execute: withToast('show_community_cv', async () => {
+      // Temporary breadcrumbs (2026-09-10): this tool has silently no-op'd once already
+      // (see the await fix below) with zero visible error, so trace every step to the
+      // console until it's confirmed working live. Safe to remove once confirmed.
+      console.debug('[show_community_cv] invoked');
+      const node = modelService
+        .nodes()
+        .find((n) => isOccupiedNode(n) && isCommunityCvSubject(n.data));
+      if (!node) {
+        console.debug('[show_community_cv] no matching node found in modelService.nodes()');
+        return {
+          error:
+            'No person named "Gérôme Grignon" was found in the current tree, so the community-CV ' +
+            "panel — which only ever shows his highlights — can't be opened.",
+        };
+      }
+      console.debug('[show_community_cv] node found:', node.id);
+      try {
+        // `select()` returns the underlying command's promise — it must be awaited before
+        // `openCommunityCv()` reads the selection back (via `focusedOnCommunityCvSubject()`),
+        // otherwise that guard still sees the *previous* selection and silently no-ops.
+        await selectionService.select([node.id]);
+        console.debug('[show_community_cv] selection resolved, selected node is now:', {
+          selectedNodeId: modelService.nodes().find((n) => n.selected)?.id,
+        });
+        propertiesSidebarService.openCommunityCv();
+        console.debug('[show_community_cv] openCommunityCv() called, isCommunityCvActive:', {
+          isExpanded: propertiesSidebarService.isExpanded(),
+          showCommunityCv: propertiesSidebarService.showCommunityCv(),
+          focusedOnCommunityCvSubject: propertiesSidebarService.focusedOnCommunityCvSubject(),
+        });
+      } catch (err) {
+        console.error('[show_community_cv] threw:', err);
+        throw err;
+      }
+      return { id: node.id, message: "Opened Gérôme Grignon's community-CV panel." };
+    }),
+  });
+
+  declareExperimentalWebMcpTool({
     name: 'set_layout_direction',
-    description: 'Changes the tree layout direction (top-to-bottom or left-to-right) and re-lays out the diagram.',
+    description:
+      'Changes the tree layout direction (top-to-bottom or left-to-right) and re-lays out the diagram.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -807,7 +897,8 @@ export function registerPeopleWebMcpTools(): void {
 
   declareExperimentalWebMcpTool({
     name: 'zoom_to_fit',
-    description: 'Pans/zooms the viewport so the entire family tree is visible, without changing any data.',
+    description:
+      'Pans/zooms the viewport so the entire family tree is visible, without changing any data.',
     inputSchema: { type: 'object', properties: {} },
     execute: withToast('zoom_to_fit', async () => {
       await viewportService.zoomToFit();
@@ -821,7 +912,7 @@ export function registerPeopleWebMcpTools(): void {
       'Adds multiple people to the family tree in one call. Each entry needs a unique "tempId" (used only ' +
       'within this call to reference other new entries) and exactly one of "parentId" (an existing person\'s ' +
       'id) or "parentTempId" (another entry\'s tempId, for building multi-generation batches in one call, e.g. ' +
-      'adding a child and that child\'s own child together). The diagram will select and pan/zoom to fit all ' +
+      "adding a child and that child's own child together). The diagram will select and pan/zoom to fit all " +
       'newly added people afterwards.',
     inputSchema: {
       type: 'object',
@@ -831,9 +922,18 @@ export function registerPeopleWebMcpTools(): void {
           items: {
             type: 'object',
             properties: {
-              tempId: { type: 'string', description: 'A unique identifier for this entry, used only within this call.' },
-              parentId: { type: 'string', description: 'The id of an existing person to add this entry as a child of.' },
-              parentTempId: { type: 'string', description: "Another entry's tempId to add this entry as a child of." },
+              tempId: {
+                type: 'string',
+                description: 'A unique identifier for this entry, used only within this call.',
+              },
+              parentId: {
+                type: 'string',
+                description: 'The id of an existing person to add this entry as a child of.',
+              },
+              parentTempId: {
+                type: 'string',
+                description: "Another entry's tempId to add this entry as a child of.",
+              },
               firstName: { type: 'string' },
               lastName: { type: 'string' },
               gender: { type: 'string', enum: GENDER_ENUM },
@@ -851,86 +951,101 @@ export function registerPeopleWebMcpTools(): void {
       },
       required: ['entries'],
     },
-    execute: withToast('add_people', async (input: {
-      entries: Array<{ tempId: string; parentId?: string; parentTempId?: string } & PersonFieldsInput>;
-    }) => {
-      const entries = input.entries;
-      if (!entries || entries.length === 0) {
-        return { error: 'No entries provided.' };
-      }
+    execute: withToast(
+      'add_people',
+      async (input: {
+        entries: Array<
+          { tempId: string; parentId?: string; parentTempId?: string } & PersonFieldsInput
+        >;
+      }) => {
+        const entries = input.entries;
+        if (!entries || entries.length === 0) {
+          return { error: 'No entries provided.' };
+        }
 
-      const tempIds = new Set<string>();
-      for (const entry of entries) {
-        if (!entry.tempId) {
-          return { error: 'Every entry must have a tempId.' };
-        }
-        if (tempIds.has(entry.tempId)) {
-          return { error: `Duplicate tempId "${entry.tempId}".` };
-        }
-        tempIds.add(entry.tempId);
-        const hasParentId = !!entry.parentId;
-        const hasParentTempId = !!entry.parentTempId;
-        if (hasParentId === hasParentTempId) {
-          return { error: `Entry "${entry.tempId}" must specify exactly one of parentId or parentTempId.` };
-        }
-        if (hasParentId && !modelService.getNodeById(entry.parentId!)) {
-          return { error: `Entry "${entry.tempId}" references unknown parentId "${entry.parentId}".` };
-        }
-        if (!entry.firstName) {
-          return { error: `Entry "${entry.tempId}" is missing a required firstName.` };
-        }
-      }
-
-      const entryByTempId = new Map(entries.map((entry) => [entry.tempId, entry]));
-      for (const entry of entries) {
-        if (entry.parentTempId && !entryByTempId.has(entry.parentTempId)) {
-          return { error: `Entry "${entry.tempId}" references unknown parentTempId "${entry.parentTempId}".` };
-        }
-      }
-
-      for (const entry of entries) {
-        const seen = new Set<string>([entry.tempId]);
-        let current = entry;
-        while (current.parentTempId) {
-          if (seen.has(current.parentTempId)) {
-            return { error: `Circular parentTempId reference detected involving "${entry.tempId}".` };
+        const tempIds = new Set<string>();
+        for (const entry of entries) {
+          if (!entry.tempId) {
+            return { error: 'Every entry must have a tempId.' };
           }
-          seen.add(current.parentTempId);
-          current = entryByTempId.get(current.parentTempId)!;
+          if (tempIds.has(entry.tempId)) {
+            return { error: `Duplicate tempId "${entry.tempId}".` };
+          }
+          tempIds.add(entry.tempId);
+          const hasParentId = !!entry.parentId;
+          const hasParentTempId = !!entry.parentTempId;
+          if (hasParentId === hasParentTempId) {
+            return {
+              error: `Entry "${entry.tempId}" must specify exactly one of parentId or parentTempId.`,
+            };
+          }
+          if (hasParentId && !modelService.getNodeById(entry.parentId!)) {
+            return {
+              error: `Entry "${entry.tempId}" references unknown parentId "${entry.parentId}".`,
+            };
+          }
+          if (!entry.firstName) {
+            return { error: `Entry "${entry.tempId}" is missing a required firstName.` };
+          }
         }
-      }
 
-      const resolvedRealId = new Map<string, string>();
-      const remaining = [...entries];
-      const added: { tempId: string; id: string }[] = [];
-      let guard = 0;
-      while (remaining.length > 0) {
-        guard++;
-        if (guard > entries.length * entries.length + 10) {
-          return { error: 'Could not resolve parent order for entries.', added };
+        const entryByTempId = new Map(entries.map((entry) => [entry.tempId, entry]));
+        for (const entry of entries) {
+          if (entry.parentTempId && !entryByTempId.has(entry.parentTempId)) {
+            return {
+              error: `Entry "${entry.tempId}" references unknown parentTempId "${entry.parentTempId}".`,
+            };
+          }
         }
-        const index = remaining.findIndex((entry) => entry.parentId || resolvedRealId.has(entry.parentTempId!));
-        if (index === -1) {
-          return { error: 'Could not resolve parent order for remaining entries.', added };
-        }
-        const [entry] = remaining.splice(index, 1);
-        const parentRealId = entry.parentId ?? resolvedRealId.get(entry.parentTempId!)!;
-        const newId = await addNodeService.addNode(parentRealId, 'child');
-        if (!newId) {
-          return { error: `Failed to add person for tempId "${entry.tempId}".`, added };
-        }
-        const newNode = modelService.getNodeById<FamilyTreeNodeData>(newId)!;
-        const formData = applyPersonFieldsToFormData(EMPTY_FORM, entry);
-        modelService.updateNodeData(newId, formDataToNodeData(formData, newNode.data));
-        resolvedRealId.set(entry.tempId, newId);
-        added.push({ tempId: entry.tempId, id: newId });
-      }
 
-      const newIds = added.map((entry) => entry.id);
-      selectionService.select(newIds);
-      await viewportService.zoomToFit({ nodeIds: newIds });
-      return { added, count: added.length, message: `Added ${added.length} people.` };
-    }),
+        for (const entry of entries) {
+          const seen = new Set<string>([entry.tempId]);
+          let current = entry;
+          while (current.parentTempId) {
+            if (seen.has(current.parentTempId)) {
+              return {
+                error: `Circular parentTempId reference detected involving "${entry.tempId}".`,
+              };
+            }
+            seen.add(current.parentTempId);
+            current = entryByTempId.get(current.parentTempId)!;
+          }
+        }
+
+        const resolvedRealId = new Map<string, string>();
+        const remaining = [...entries];
+        const added: { tempId: string; id: string }[] = [];
+        let guard = 0;
+        while (remaining.length > 0) {
+          guard++;
+          if (guard > entries.length * entries.length + 10) {
+            return { error: 'Could not resolve parent order for entries.', added };
+          }
+          const index = remaining.findIndex(
+            (entry) => entry.parentId || resolvedRealId.has(entry.parentTempId!),
+          );
+          if (index === -1) {
+            return { error: 'Could not resolve parent order for remaining entries.', added };
+          }
+          const [entry] = remaining.splice(index, 1);
+          const parentRealId = entry.parentId ?? resolvedRealId.get(entry.parentTempId!)!;
+          const newId = await addNodeService.addNode(parentRealId, 'child');
+          if (!newId) {
+            return { error: `Failed to add person for tempId "${entry.tempId}".`, added };
+          }
+          const newNode = modelService.getNodeById<FamilyTreeNodeData>(newId)!;
+          const formData = applyPersonFieldsToFormData(EMPTY_FORM, entry);
+          modelService.updateNodeData(newId, formDataToNodeData(formData, newNode.data));
+          resolvedRealId.set(entry.tempId, newId);
+          added.push({ tempId: entry.tempId, id: newId });
+        }
+
+        const newIds = added.map((entry) => entry.id);
+        selectionService.select(newIds);
+        await viewportService.zoomToFit({ nodeIds: newIds });
+        return { added, count: added.length, message: `Added ${added.length} people.` };
+      },
+    ),
   });
 
   declareExperimentalWebMcpTool({
@@ -979,49 +1094,70 @@ export function registerPeopleWebMcpTools(): void {
     inputSchema: {
       type: 'object',
       properties: {
-        id: { type: 'string', description: 'The id of the person whose subtree to expand or collapse.' },
-        collapsed: { type: 'boolean', description: 'true to collapse (hide descendants), false to expand.' },
+        id: {
+          type: 'string',
+          description: 'The id of the person whose subtree to expand or collapse.',
+        },
+        collapsed: {
+          type: 'boolean',
+          description: 'true to collapse (hide descendants), false to expand.',
+        },
       },
       required: ['id', 'collapsed'],
     },
-    execute: withToast('set_subtree_collapsed', async (input: { id: string; collapsed: boolean }) => {
-      const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
-      if (!node || !isOccupiedNode(node)) {
-        return { error: `No person found with id "${input.id}".` };
-      }
-      const isCurrentlyCollapsed = getIsCollapsed({ data: node.data as Partial<FamilyTreeBaseNodeData> });
-      if (isCurrentlyCollapsed === input.collapsed) {
-        return { id: input.id, collapsed: input.collapsed, message: 'Subtree already in the requested state.' };
-      }
-      const result = expandCollapseService.prepareToggle(input.id);
-      if (!result) {
-        return { error: `Unable to toggle the subtree for "${input.id}" (it may have no children).` };
-      }
-      await modelApplyService.applyWithLayout(result.changes, {
-        visibility: { subtreeIds: result.toggledSubtreeIds, collapsing: result.collapsing },
-      });
-      nodeVisibilityService.ensureVisible(input.id);
-      return {
-        id: input.id,
-        collapsed: input.collapsed,
-        message: `Subtree ${input.collapsed ? 'collapsed' : 'expanded'}.`,
-      };
-    }),
+    execute: withToast(
+      'set_subtree_collapsed',
+      async (input: { id: string; collapsed: boolean }) => {
+        const node = modelService.getNodeById<FamilyTreeNodeData>(input.id);
+        if (!node || !isOccupiedNode(node)) {
+          return { error: `No person found with id "${input.id}".` };
+        }
+        const isCurrentlyCollapsed = getIsCollapsed({
+          data: node.data as Partial<FamilyTreeBaseNodeData>,
+        });
+        if (isCurrentlyCollapsed === input.collapsed) {
+          return {
+            id: input.id,
+            collapsed: input.collapsed,
+            message: 'Subtree already in the requested state.',
+          };
+        }
+        const result = expandCollapseService.prepareToggle(input.id);
+        if (!result) {
+          return {
+            error: `Unable to toggle the subtree for "${input.id}" (it may have no children).`,
+          };
+        }
+        await modelApplyService.applyWithLayout(result.changes, {
+          visibility: { subtreeIds: result.toggledSubtreeIds, collapsing: result.collapsing },
+        });
+        nodeVisibilityService.ensureVisible(input.id);
+        return {
+          id: input.id,
+          collapsed: input.collapsed,
+          message: `Subtree ${input.collapsed ? 'collapsed' : 'expanded'}.`,
+        };
+      },
+    ),
   });
 
   declareExperimentalWebMcpTool({
     name: 'reorder_children',
     description:
-      "Changes the display order of a person's children. \"order\" must contain exactly the current " +
+      'Changes the display order of a person\'s children. "order" must contain exactly the current ' +
       "children's ids, in the desired new order.",
     inputSchema: {
       type: 'object',
       properties: {
-        parentId: { type: 'string', description: 'The id of the parent whose children to reorder.' },
+        parentId: {
+          type: 'string',
+          description: 'The id of the parent whose children to reorder.',
+        },
         order: {
           type: 'array',
           items: { type: 'string' },
-          description: "The child ids in the desired new order (must be a permutation of the parent's current children).",
+          description:
+            "The child ids in the desired new order (must be a permutation of the parent's current children).",
         },
       },
       required: ['parentId', 'order'],

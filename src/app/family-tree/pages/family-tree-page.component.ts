@@ -23,6 +23,7 @@ import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sid
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { ToolbarHorizontalComponent } from '../toolbar-horizontal/toolbar-horizontal.component';
 import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
+import { registerFamilyTreesWebMcpTools } from '../webmcp/family-trees-mcp-tools';
 import { registerPeopleWebMcpTools } from '../webmcp/people-mcp-tools';
 
 @Component({
@@ -68,5 +69,11 @@ export class FamilyTreePageComponent {
     // constructor, so the tools resolve NgDiagramModelService, HierarchyService,
     // AddNodeService, and NodeMutationService from this component's providers.
     registerPeopleWebMcpTools();
+
+    // Exposes list/delete tools for whole family trees, registered directly against
+    // the standard document.modelContext imperative API instead of the Angular
+    // wrapper above — see family-trees-mcp-tools.ts for why. Same reasoning for
+    // calling it here: it needs FamilyTreeStoreService from this component's providers.
+    registerFamilyTreesWebMcpTools();
   }
 }

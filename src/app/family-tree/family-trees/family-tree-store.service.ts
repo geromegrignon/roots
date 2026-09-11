@@ -92,6 +92,37 @@ export class FamilyTreeStoreService {
     return id;
   }
 
+  /** Whether `id` can be deleted — everything except the default "Grignon" tree. */
+  canDelete(id: string): boolean {
+    return id !== DEFAULT_TREE_ID;
+  }
+
+  /**
+   * Deletes a family tree: its index entry and its stored diagram data. A no-op for
+   * the default "Grignon" tree (see {@link canDelete}) or for an unknown id. If the
+   * deleted tree was active, switches to the "Grignon" tree (or the first remaining
+   * tree, in the unlikely case that's gone too).
+   */
+  deleteTree(id: string): void {
+    if (!this.canDelete(id)) return;
+    const trees = this._trees();
+    if (!trees.some((tree) => tree.id === id)) return;
+
+    const remaining = trees.filter((tree) => tree.id !== id);
+    this._trees.set(remaining);
+    this.persist(INDEX_STORAGE_KEY, JSON.stringify(remaining));
+    this.remove(DATA_STORAGE_KEY_PREFIX + id);
+
+    if (this._activeTreeId() === id) {
+      const nextId =
+        remaining.find((tree) => tree.id === DEFAULT_TREE_ID)?.id ??
+        remaining[0]?.id ??
+        DEFAULT_TREE_ID;
+      this._activeTreeId.set(nextId);
+      this.persist(ACTIVE_STORAGE_KEY, nextId);
+    }
+  }
+
   private loadTreeData(id: string): FamilyTreeData {
     const raw = this.read(DATA_STORAGE_KEY_PREFIX + id);
     if (raw) {
@@ -171,6 +202,14 @@ export class FamilyTreeStoreService {
       localStorage.setItem(key, value);
     } catch {
       // localStorage unavailable (private browsing, quota, etc.) — edits just won't persist.
+    }
+  }
+
+  private remove(key: string): void {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // localStorage unavailable (private browsing, quota, etc.) — stale data just lingers.
     }
   }
 }

@@ -28,6 +28,11 @@ export class FamilyTreeSwitcherComponent {
     { value: ADD_NEW_FAMILY_TREE_VALUE, label: '+ Add new family tree…' },
   ]);
 
+  /** Whether the active tree can be deleted — hides the delete button for the default "Grignon" tree. */
+  protected readonly canDeleteActiveTree = computed(() =>
+    this.store.canDelete(this.store.activeTreeId()),
+  );
+
   /**
    * Handles a selection change. Picking the "add new" option opens the modal
    * instead of switching trees; since the select's value is bound one-way to
@@ -45,5 +50,16 @@ export class FamilyTreeSwitcherComponent {
 
   protected closeAddModal(): void {
     this.isAddModalOpen.set(false);
+  }
+
+  /** Deletes the active family tree, after a confirmation prompt (this can't be undone). */
+  protected onDeleteActiveTree(): void {
+    const tree = this.store.activeTree();
+    if (!tree || !this.store.canDelete(tree.id)) return;
+
+    const confirmed = confirm(`Delete the "${tree.name}" family tree? This can't be undone.`);
+    if (!confirmed) return;
+
+    this.store.deleteTree(tree.id);
   }
 }

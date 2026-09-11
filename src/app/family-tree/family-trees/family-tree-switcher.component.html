@@ -9,6 +9,16 @@
     ariaLabel="Switch family tree"
     [fluid]="true"
   />
+  @if (canDeleteActiveTree()) {
+    <button
+      type="button"
+      class="delete-tree-button"
+      aria-label="Delete family tree"
+      (click)="onDeleteActiveTree()"
+    >
+      <span class="icon icon-delete" aria-hidden="true"></span>
+    </button>
+  }
 </div>
 
 <app-add-family-tree-modal [isOpen]="isAddModalOpen()" (closed)="closeAddModal()" />
